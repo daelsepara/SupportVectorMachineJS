@@ -45,6 +45,18 @@
 					</ul>
 					<div class="tab-content" id="pills-tabContent">
 						<div class="tab-pane fade show active" id="pills-data" role="tabpanel" aria-labelledby="pills-data-tab">
+							<div class="container border border-secondary rounded">
+								<b>select file</b><br/>
+								<input type="file" multiple name="files" input-bind class="btn btn-outline-secondary" ng-disabled = "Training" /><br/><br/>
+								<b>delimiters</b><br/>
+								<select class="form-control" ng-model="delimiter" data-ng-options="x for x in DelimiterNames" ng-change="SelectDelimiter()" ng-disabled = "Training"></select><br/>
+								<input type="button" class="btn btn-outline-primary" value="Process data" ng-click="ReadTrainingData()" ng-disabled = "Training"/><br/><br/>
+								<textarea ng-model = "fileContent" rows="4" cols="60" style = "resize: none;" readonly ></textarea>
+								<br/><br/>
+								<div class="{{Items == 0 && Inputs == 0 && Categories == 0 ? 'alert alert-danger' : 'alert alert-success' }}" role="alert">
+									<span><b>Items</b>: {{Items}} <b>Input features</b>: {{Inputs}} <b>Categories</b>: {{Categories}}</span>
+								</div>
+							</div>
 						</div>
 						<div class="tab-pane fade show active" id="pills-training" role="tabpanel" aria-labelledby="pills-training-tab">
 						</div>
