@@ -944,7 +944,7 @@ class KernelFunction {
 class SupportVectorMachine {
 
 	constructor() {
-
+		
 		this.ModelX = [];
         this.ModelY = [];
         this.Type = KernelType.UNKNOWN;
@@ -998,15 +998,15 @@ class SupportVectorMachine {
 	}
 
 	Setup(x, y, c, kernel, param, tolerance = 0.001, maxpasses = 5, category = 1) {
-	
+		
 		this.dx = Matrix.Clone(x);
 		this.dy = Matrix.Clone(y);
-
+		
 		this.ktype = kernel;
 		
 		// Data parameters
 		var m = this.Rows(dx);
-		
+
 		this.Category = category;
 		this.MaxIterations = maxpasses;
 		this.Tolerance = tolerance;
@@ -1023,7 +1023,7 @@ class SupportVectorMachine {
 
 		// Pre-compute the Kernel Matrix since our dataset is small
 		// (In practice, optimized SVM packages that handle large datasets
-        // gracefully will *not* do this)
+		// gracefully will *not* do this)
 		if (kernel == KernelType.LINEAR) {
 
 			var tinput = Matrix.Transpose(dx);
@@ -1099,7 +1099,7 @@ class SupportVectorMachine {
 	}
 
 	Step() {
-
+		
 		if (this.Iterations >= this.MaxIterations)
 			return true;
 
@@ -1218,7 +1218,7 @@ class SupportVectorMachine {
 		if (num_changed_alphas == 0) {
 
 			this.Iterations++;
-		
+
 		} else {
 			
 			this.Iterations = 0;
@@ -1228,7 +1228,7 @@ class SupportVectorMachine {
 	}
 
 	Generate() {
-
+		
 		var m = this.Rows(dx);
 		var n = this.Cols(dx);
 
@@ -1324,8 +1324,8 @@ class SupportVectorMachine {
 	// Converted to C# by: SD Separa (2018/09/29)
 	//
 	// Converted to JavaScript by: SD Separa (2019/05/16)
-	Predict(input)
-	{
+	Predict(input) {
+		
 		var predictions = Matrix.Create(this.Rows(input), 1);
 
 		if (this.Trained) {
@@ -1432,7 +1432,7 @@ class SupportVectorMachine {
 	Classify(input, threshold = 0.0) {
 		
 		var classification = Matrix.Create(this.RowsRows(input), 1);
-
+		
 		var predictions = this.Predict(input);
 
 		for (var i = 0; i < predictions.length; i++) {
@@ -1444,7 +1444,7 @@ class SupportVectorMachine {
 	}
 
 	Test(output, classification, category = 1) {
-
+		
 		var errors = 0;
 
 		for (var i = 0; i < classification.length; i++) {
