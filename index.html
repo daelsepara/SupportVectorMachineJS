@@ -59,6 +59,18 @@
 							</div>
 						</div>
 						<div class="tab-pane fade show active" id="pills-training" role="tabpanel" aria-labelledby="pills-training-tab">
+							<div class="container border border-secondary rounded">
+								<div class = "row">
+									<div class = "col">
+										<b>Kernels</b><br/>
+										<select class="form-control" ng-model="kernel" data-ng-options="x for x in KernelNames" ng-change="SelectKernel()" ng-disabled = "Training"></select><br/>
+									</div>
+									<div class = "col">
+										<b>Models</b><br/>
+										<select class="form-control" ng-model="model" data-ng-options="x for x in Models" ng-change="SelectModel()" ng-disabled = "Training"></select><br/>
+									</div>
+								</div>
+							</div>
 						</div>
 						<div class="tab-pane fade show active" id="pills-classify" role="tabpanel" aria-labelledby="pills-classify-tab">
 						</div>

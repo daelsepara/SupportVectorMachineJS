@@ -4,6 +4,7 @@ angular
 	.module('DeepLearning', ['ngWebworker', 'ngFileSaver', 'd3'])
 	.controller('SupportVectorMachineController', ['$scope', 'Webworker', 'FileSaver', 'Blob', function($scope, Webworker, FileSaver, Blob) {
 	
+		$scope.Models = [];
 		$scope.Classification = [];
 		$scope.Prediction = [];
 		
@@ -21,17 +22,29 @@ angular
 		
 		$scope.TestData = [];
 		$scope.Samples = 0;
-		
+
 		$scope.DelimiterNames = ["Tab \\t", "Comma ,", "Space \\s", "Vertical Pipe |", "Colon :", "Semi-Colon ;", "Forward Slash /", '/', "Backward Slash \\"];
 		$scope.Delimiters = ['\t', ',', ' ', '|', ':', ';', '/', '\\'];
 		$scope.delimiter = $scope.DelimiterNames[0];
 		$scope.SelectedDelimiter = 0;
+
+		$scope.KernelNames = ["Polynomial", "Gaussian", "Radial", "Sigmoid", "Linear", "Fourier", "Unknown"];
+		$scope.Kernels = [0, 1, 2, 3, 4, 5, -1];
+		$scope.kernel = $scope.KernelNames[0];
+		$scope.SelectedKernel = 0;
 
 		$scope.SelectDelimiter = function() {
 			
 			var i = $scope.DelimiterNames.indexOf($scope.delimiter);
 			
 			$scope.SelectedDelimiter = i + 1;
+		}
+
+		$scope.SelectKernel = function() {
+			
+			var i = $scope.KernelNames.indexOf($scope.kernel);
+			
+			$scope.SelectedKernel = i + 1;
 		}
 
 		$scope.ReadTrainingData = function() {
