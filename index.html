@@ -57,11 +57,12 @@
 									<span><b>Items</b>: {{Items}} <b>Input features</b>: {{Inputs}} <b>Categories</b>: {{Categories}}</span>
 								</div>
 							</div>
+							<br/>
 						</div>
-						<div class="tab-pane fade show active" id="pills-training" role="tabpanel" aria-labelledby="pills-training-tab">
+						<div class="tab-pane fade" id="pills-training" role="tabpanel" aria-labelledby="pills-training-tab">
 							<div class="container border border-secondary rounded">
-								<div class = "row">
-									<div class = "col-sm">
+								<div class="row">
+									<div class = "col-sm-4">
 										<b>Kernels</b><br/>
 										<select class="form-control" ng-model="kernel" data-ng-options="x for x in KernelNames" ng-change="SelectKernel()" ng-disabled = "Training"></select><br/>
 										<div ng-show = "SelectedKernel == KernelType.Polynomial">
@@ -85,30 +86,92 @@
 											<input class = "form-control" type="number" ng-model = "scalingFactor" name="scalingFactor" min="-100" max="100" step = "0.01" value = "{{scalingFactor}}" ng-disabled = "Training" /><br/>
 										</div>
 										<b>Category</b><br/>
-										<input class = "form-control" type="number" ng-model = "category" name="category" min="1" max="100" step = "1" value = "{{category}}" ng-disabled = "Training" /><br/>
+										<input class = "form-control" type="number" ng-model = "category" name="category" min="1" max="{{Categories}}" step = "1" value = "{{category}}" ng-disabled = "Training" /><br/>
+										<button class="btn btn-outline-primary" value="Add Model" ng-click="AddModel()" ng-disabled = "Training" ng-show = "SelectedModel == 0"><i class="fas fa-plus"></i>&nbsp;Add Model</button>
+										<button class="btn btn-outline-success" value="Update Model" ng-click="UpdateModel()" ng-disabled = "Training" ng-show = "Models.length > 0 && SelectedModel > 0 && SelectedModel <= Models.length"><i class="fas fa-check"></i>&nbsp;Update Model</button>
+										</br/><br/>
 									</div>
-									<div class = "col-sm">
+									<div class = "col-sm-4">
 										<b>SVM Regularization</b><br/>
 										<input class = "form-control" type="number" ng-model = "regularization" name="regularization" min="1" max="100" step = "1" value = "{{regularization}}" ng-disabled = "Training" /><br/>
 										<b>Maximum # of passes</b><br/>
 										<input class = "form-control" type="number" ng-model = "passes" name="passes" min="1" max="100" step = "1" value = "{{passes}}" ng-disabled = "Training" /><br/>
 										<b>Tolerance</b><br/>
-										<input class = "form-control" type="number" ng-model = "Tolerance" name="Tolerance" min="0.00001" max="10" step = "0.00001" value = "{{TOlerance}}" ng-disabled = "Training" /><br/>
+										<input class = "form-control" type="number" ng-model = "tolerance" name="tolerance" min="0.00001" max="10" step = "0.00001" value = "{{tolerance}}" ng-disabled = "Training" /><br/>
 									</div>
-									<div class = "col-sm">
+									<div class = "col-sm-4">
 										<b>Models</b><br/>
-										<select class="form-control" ng-model="model" data-ng-options="x for x in Models" ng-change="SelectModel()" ng-disabled = "Training"></select><br/>
+										<select class="form-control" ng-model="SelectedModel" ng-change="SelectModel()" ng-disabled = "Training">
+											<option value = "0">None</option>
+											<option ng-selected="{{SelectedModel == x.index}}" ng-repeat="x in Models" value = "{{x.index}}">Model {{x.index}}</option>	
+										</select>
+										<br/>
+										<button class="btn btn-outline-danger" value="Remove Model" ng-click="RemoveModel()" ng-disabled = "Training" ng-show = "Models.length > 0 && SelectedModel != 0"><i class="fas fa-times"></i>&nbsp;Remove Model</button></br/><br/>
 									</div>
 								</div>
 							</div>
+							<br/>
 						</div>
-						<div class="tab-pane fade show active" id="pills-classify" role="tabpanel" aria-labelledby="pills-classify-tab">
+						<div class="tab-pane fade" id="pills-classify" role="tabpanel" aria-labelledby="pills-classify-tab">
+							<div class="container border border-secondary rounded">
+								<b>select file</b><br/>
+								<input type="file" multiple name="files" test-bind class="btn btn-outline-secondary" ng-disabled = "Training" /><br/><br/>
+								<input type="button" class="btn btn-outline-primary" value="Process data" ng-click="ReadTestData()" ng-disabled = "Training"/><br/><br/>
+								<div class = "row">
+									<div class = "col-sm">
+										<b>Test data</b><br/>
+										<textarea ng-model = "testContent" rows="4" cols="60" style = "resize: none;" readonly></textarea>
+										<br/><br/>
+										<div class="{{Samples == 0 || Inputs == 0 ? 'alert alert-danger' : 'alert alert-success' }}" role="alert">
+											<span><b>Samples</b>: {{Samples}} <b>Input features</b>: {{Inputs}}</span>
+										</div>
+									</div>
+									<div class = "col-sm">
+										<b>Classification</b><br/>
+										<textarea ng-model = "classificationResult" rows="4" cols="40" style = "resize: none;"></textarea><br/><br/>
+										<b>Threshold</b><br/>
+										<input class = "form-control" type="number" ng-model = "Threshold" name="Threshold" min="0.01" max="1" step = "0.01" value = "{{Threshold}}" ng-disabled = "Training" /><br/>
+										<input type="button" class="btn btn-outline-primary" value="Classify" ng-click="AsyncClassifier()" ng-disabled = "Training" /><br/><br/>
+									</div>
+								</div>
+							</div>
+							<br/>
 						</div>
-						<div class="tab-pane fade show active" id="pills-models" role="tabpanel" aria-labelledby="pills-models-tab">
+						<div class="tab-pane fade" id="pills-models" role="tabpanel" aria-labelledby="pills-models-tab">
+							<div class="container border border-secondary rounded">
+								<br/>
+							</div>
+							<br/>
 						</div>
-						<div class="tab-pane fade show active" id="pills-plot" role="tabpanel" aria-labelledby="pills-plot-tab">
+						<div class="tab-pane fade" id="pills-plot" role="tabpanel" aria-labelledby="pills-plot-tab">
+							<div class="container border border-secondary rounded">
+								<br/>
+								<div class = "row">
+									<div class = "col">
+										<input type="button" class="btn btn-outline-primary" value="Render Test Data" ng-click="RenderTestData()" ng-disabled = "Training" />&nbsp;<input type="button" class="btn btn-outline-success" value="Save Render" ng-click="SaveRenderedData()" ng-disabled = "Training" /><br/><br/>
+									</div>
+								</div>
+								<div class = "row">
+									<div class = "col">
+										<b>Width</b><br/>
+										<input class = "form-control" type="number" ng-model = "PlotWidth" name="PlotWidth" min="640" max="1024" value = "{{PlotWidth}}" style = "width: 100px;" ng-disabled = "Training"/>
+										<b>Height</b><br/>
+										<input class = "form-control" type="number" ng-model = "PlotHeight" name="PlotHeight" min="640" max="1024" value = "{{PlotHeight}}" style = "width: 100px;" ng-disabled = "Training"/>
+										<br/>
+									</div>
+								</div>
+								<div class = "row">
+									<svg id='plot'></svg><br/><br/>
+								</div>
+								<br/><br/>
+							</div>
+							<br/><br/>
 						</div>
-						<div class="tab-pane fade show active" id="pills-guide" role="tabpanel" aria-labelledby="pills-guide-tab">
+						<div class="tab-pane fade" id="pills-guide" role="tabpanel" aria-labelledby="pills-guide-tab">
+							<div class="container border border-secondary rounded">
+								<br/>
+							</div>
+							<br/><br/>
 						</div>
 					</div>
 				</div>
@@ -119,5 +182,6 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
 </body>
 </html>

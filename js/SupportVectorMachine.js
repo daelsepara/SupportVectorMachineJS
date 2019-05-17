@@ -3,7 +3,19 @@ angular.module('d3', []).factory('d3Service', [function(){ return d3; }]);
 angular
 	.module('DeepLearning', ['ngWebworker', 'ngFileSaver', 'd3'])
 	.controller('SupportVectorMachineController', ['$scope', 'Webworker', 'FileSaver', 'Blob', function($scope, Webworker, FileSaver, Blob) {
-	
+		
+		class ModelParameters {
+
+			constructor(id, type, parameters, regularization, passes, tolerance) {
+				this.index = id;
+				this.Type = type;
+				this.Parameters = parameters;
+				this.Regularization = regularization;
+				this.Passes = passes;
+				this.Tolerance = tolerance;
+			}
+		};
+
 		$scope.Models = [];
 		$scope.Classification = [];
 		$scope.Prediction = [];
@@ -28,9 +40,9 @@ angular
 		$scope.delimiter = $scope.DelimiterNames[0];
 		$scope.SelectedDelimiter = 0;
 
-		$scope.KernelType = {Polynomial: 0, Gaussian: 1, Radial: 2, Sigmoid: 3, Linear: 4, Fourier: 5, Unknown: -1};
-		$scope.KernelNames = ["Polynomial", "Gaussian", "Radial", "Sigmoid", "Linear", "Fourier", "Unknown"];
-		$scope.Kernels = [0, 1, 2, 3, 4, 5, -1];
+		$scope.KernelType = {Polynomial: 0, Gaussian: 1, Radial: 2, Sigmoid: 3, Linear: 4, Fourier: 5};
+		
+		$scope.KernelNames = ["Polynomial", "Gaussian", "Radial", "Sigmoid", "Linear", "Fourier"];
 		$scope.kernel = $scope.KernelNames[0];
 		$scope.SelectedKernel = 0;
 
@@ -43,6 +55,9 @@ angular
 		$scope.category = 1;
 		$scope.regularization = 1;
 		$scope.passes = 5;
+		$scope.tolerance = 0.00001;
+
+		$scope.SelectedModel = 0;
 
 		$scope.SelectDelimiter = function() {
 			
@@ -123,7 +138,28 @@ angular
 			}
 		};
 
-	
+		$scope.AddModel = function() {
+
+			//console.log($scope.KernelNames[$scope.SelectedKernel] + " " + $scope.SelectedKernel.toString());
+
+			var model = undefined;
+
+			if ($scope.SelectedKernel == $scope.KernelType.Polynomial) {
+
+				var model = new ModelParameters($scope.Models.length + 1, $scope.KernelType.Polynomial, [$scope.bias, $scope.exponent], $scope.regularization, $scope.passes, $scope.tolerance);
+			}
+
+			if (model != undefined) {
+				
+				$scope.Models.push(model);
+			}
+
+			//console.log("Model Parameters");
+			//console.log(model);
+
+			console.log($scope.Models);
+		};
+
 	}]).directive("inputBind", function() {
 		
 		return function(scope, elm, attrs) {
