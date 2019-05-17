@@ -28,10 +28,21 @@ angular
 		$scope.delimiter = $scope.DelimiterNames[0];
 		$scope.SelectedDelimiter = 0;
 
+		$scope.KernelType = {Polynomial: 0, Gaussian: 1, Radial: 2, Sigmoid: 3, Linear: 4, Fourier: 5, Unknown: -1};
 		$scope.KernelNames = ["Polynomial", "Gaussian", "Radial", "Sigmoid", "Linear", "Fourier", "Unknown"];
 		$scope.Kernels = [0, 1, 2, 3, 4, 5, -1];
 		$scope.kernel = $scope.KernelNames[0];
 		$scope.SelectedKernel = 0;
+
+		$scope.bias = 0.0;
+		$scope.exponent = 2.0;
+		$scope.sigma = 0.01000;
+		$scope.slope = 1.0;
+		$scope.intercept = 0.0;
+		$scope.scalingFactor = 1.0;
+		$scope.category = 1;
+		$scope.regularization = 1;
+		$scope.passes = 5;
 
 		$scope.SelectDelimiter = function() {
 			
@@ -44,7 +55,7 @@ angular
 			
 			var i = $scope.KernelNames.indexOf($scope.kernel);
 			
-			$scope.SelectedKernel = i + 1;
+			$scope.SelectedKernel = i;
 		}
 
 		$scope.ReadTrainingData = function() {

@@ -61,11 +61,41 @@
 						<div class="tab-pane fade show active" id="pills-training" role="tabpanel" aria-labelledby="pills-training-tab">
 							<div class="container border border-secondary rounded">
 								<div class = "row">
-									<div class = "col">
+									<div class = "col-sm">
 										<b>Kernels</b><br/>
 										<select class="form-control" ng-model="kernel" data-ng-options="x for x in KernelNames" ng-change="SelectKernel()" ng-disabled = "Training"></select><br/>
+										<div ng-show = "SelectedKernel == KernelType.Polynomial">
+											<b>Bias</b><br/>
+											<input class = "form-control" type="number" ng-model = "bias" name="bias" min="0" max="100" step = "0.01" value = "{{bias}}" ng-disabled = "Training" /><br/>
+											<b>Exponent</b><br/>
+											<input class = "form-control" type="number" ng-model = "exponent" name="exponent" min="0" max="100" step = "0.01" value = "{{exponent}}" ng-disabled = "Training" /><br/>
+										</div>
+										<div ng-show = "SelectedKernel == KernelType.Gaussian || SelectedKernel == KernelType.Radial">
+											<b>Sigma</b><br/>
+											<input class = "form-control" type="number" ng-model = "sigma" name="sigma" min="0.01" max="100" step = "0.01" value = "{{sigma}}" ng-disabled = "Training" /><br/>
+										</div>
+										<div ng-show = "SelectedKernel == KernelType.Sigmoid || SelectedKernel == KernelType.Linear">
+											<b>Slope</b><br/>
+											<input class = "form-control" type="number" ng-model = "slope" name="slope" min="-1000" max="1000" step = "0.01" value = "{{slope}}" ng-disabled = "Training" /><br/>
+											<b>Intercept</b><br/>
+											<input class = "form-control" type="number" ng-model = "intercept" name="intercept" min="-1000" max="1000" step = "0.01" value = "{{intercept}}" ng-disabled = "Training" /><br/>
+										</div>
+										<div ng-show = "SelectedKernel == KernelType.Fourier">
+											<b>Scaling Factor</b><br/>
+											<input class = "form-control" type="number" ng-model = "scalingFactor" name="scalingFactor" min="-100" max="100" step = "0.01" value = "{{scalingFactor}}" ng-disabled = "Training" /><br/>
+										</div>
+										<b>Category</b><br/>
+										<input class = "form-control" type="number" ng-model = "category" name="category" min="1" max="100" step = "1" value = "{{category}}" ng-disabled = "Training" /><br/>
 									</div>
-									<div class = "col">
+									<div class = "col-sm">
+										<b>SVM Regularization</b><br/>
+										<input class = "form-control" type="number" ng-model = "regularization" name="regularization" min="1" max="100" step = "1" value = "{{regularization}}" ng-disabled = "Training" /><br/>
+										<b>Maximum # of passes</b><br/>
+										<input class = "form-control" type="number" ng-model = "passes" name="passes" min="1" max="100" step = "1" value = "{{passes}}" ng-disabled = "Training" /><br/>
+										<b>Tolerance</b><br/>
+										<input class = "form-control" type="number" ng-model = "Tolerance" name="Tolerance" min="0.00001" max="10" step = "0.00001" value = "{{TOlerance}}" ng-disabled = "Training" /><br/>
+									</div>
+									<div class = "col-sm">
 										<b>Models</b><br/>
 										<select class="form-control" ng-model="model" data-ng-options="x for x in Models" ng-change="SelectModel()" ng-disabled = "Training"></select><br/>
 									</div>
