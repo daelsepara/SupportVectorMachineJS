@@ -85,8 +85,8 @@
 											<b>Scaling Factor</b><br/>
 											<input class = "form-control" type="number" ng-model = "scalingFactor" name="scalingFactor" min="-100" max="100" step = "0.01" value = "{{scalingFactor}}" ng-disabled = "Training" /><br/>
 										</div>
-										<b>Category</b><br/>
-										<input class = "form-control" type="number" ng-model = "category" name="category" min="1" max="{{Categories}}" step = "1" value = "{{category}}" ng-disabled = "Training" /><br/>
+										<b ng-show = "Categories > 0">Category</b><br ng-show = "Categories > 0"/>
+										<input class = "form-control" type="number" ng-model = "category" name="category" min="1" max="{{Categories}}" step = "1" value = "{{category}}" ng-show = "Categories > 0" ng-disabled = "Training" /><br/>
 										<button class="btn btn-outline-primary" value="Add Model" ng-click="AddModel()" ng-disabled = "Training" ng-show = "SelectedModel == 0"><i class="fas fa-plus"></i>&nbsp;Add Model</button>
 										<button class="btn btn-outline-success" value="Update Model" ng-click="UpdateModel()" ng-disabled = "Training" ng-show = "Models.length > 0 && SelectedModel > 0 && SelectedModel <= Models.length"><i class="fas fa-check"></i>&nbsp;Update Model</button>
 										</br/><br/>
@@ -100,7 +100,7 @@
 										<input class = "form-control" type="number" ng-model = "tolerance" name="tolerance" min="0.00001" max="10" step = "0.00001" value = "{{tolerance}}" ng-disabled = "Training" /><br/>
 									</div>
 									<div class = "col-sm-4">
-										<b>Models</b><br/>
+										<b>Models: {{Models.length}}</b><br/>
 										<select class="form-control" ng-model="SelectedModel" ng-change="SelectModel()" ng-disabled = "Training">
 											<option value = "0">None</option>
 											<option ng-selected="{{SelectedModel == x.index}}" ng-repeat="x in Models" value = "{{x.index}}">Model {{x.index}}</option>	

@@ -6,13 +6,14 @@ angular
 		
 		class ModelParameters {
 
-			constructor(id, type, parameters, regularization, passes, tolerance) {
+			constructor(id, type, parameters, regularization, passes, tolerance, category) {
 				this.index = id;
 				this.Type = type;
 				this.Parameters = parameters;
 				this.Regularization = regularization;
 				this.Passes = passes;
 				this.Tolerance = tolerance;
+				this.Category = category;
 			}
 		};
 
@@ -52,7 +53,7 @@ angular
 		$scope.slope = 1.0;
 		$scope.intercept = 0.0;
 		$scope.scalingFactor = 1.0;
-		$scope.category = 1;
+		$scope.category = 0;
 		$scope.regularization = 1;
 		$scope.passes = 5;
 		$scope.tolerance = 0.00001;
@@ -138,26 +139,115 @@ angular
 			}
 		};
 
+		$scope.RenumberModels = function() {
+
+			for (var i = 0; i < $scope.Models.length; i++) {
+					
+				$scope.Models[i].index = i + 1;
+					
+			}
+
+		};
+
 		$scope.AddModel = function() {
 
-			//console.log($scope.KernelNames[$scope.SelectedKernel] + " " + $scope.SelectedKernel.toString());
+			if ($scope.category != 0) {
 
-			var model = undefined;
+				var model = undefined;
 
-			if ($scope.SelectedKernel == $scope.KernelType.Polynomial) {
+				if ($scope.SelectedKernel == $scope.KernelType.Polynomial) {
 
-				var model = new ModelParameters($scope.Models.length + 1, $scope.KernelType.Polynomial, [$scope.bias, $scope.exponent], $scope.regularization, $scope.passes, $scope.tolerance);
-			}
-
-			if (model != undefined) {
+					var model = new ModelParameters($scope.Models.length + 1, $scope.KernelType.Polynomial, [$scope.bias, $scope.exponent], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
 				
-				$scope.Models.push(model);
+				} else if ($scope.SelectedKernel == $scope.KernelType.Gaussian || $scope.SelectedKernel == $scope.KernelType.Radial) {
+
+					var model = new ModelParameters($scope.Models.length + 1, $scope.SelectedKernel == $scope.KernelType.Gaussian ? $scope.KernelType.Gaussian : $scope.KernelType.Radial, [$scope.sigma], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
+
+				} else if ($scope.SelectedKernel == $scope.KernelType.Sigmoid || $scope.SelectedKernel == $scope.KernelType.Linear) {
+
+					var model = new ModelParameters($scope.Models.length + 1, $scope.SelectedKernel == $scope.KernelType.Sigmoid ? $scope.KernelType.Sigmoid : $scope.KernelType.Linear, [$scope.slope, $scope.intercept], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
+
+				} else if ($scope.SelectedKernel == $scope.KernelType.Fourier) {
+
+					var model = new ModelParameters($scope.Models.length + 1, $scope.Fourier, [$scope.scalingFactor], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
+					
+				}
+
+				if (model != undefined) {
+					
+					$scope.Models.push(model);
+				}
+
+				console.log($scope.Models);
 			}
+		};
 
-			//console.log("Model Parameters");
-			//console.log(model);
+		$scope.SelectModel = function() {
 
-			console.log($scope.Models);
+			if ($scope.SelectedModel > 0 && $scope.SelectedModel <= $scope.Models.length) {
+
+				var current = $scope.Models[$scope.SelectedModel - 1];
+
+				$scope.kernel = $scope.KernelNames[current.Type];
+				$scope.SelectedKernel = current.Type;
+				
+				if (current.Type == $scope.KernelType.Polynomial) {
+				
+					$scope.bias = current.Parameters[0];
+					$scope.exponent = current.Parameters[1];
+				
+				} else if (current.Type == $scope.KernelType.Gaussian || current.Type == $scope.KernelType.Radial) {
+
+					$scope.sigma = current.Parameters[0];
+
+				} else if (current.Type == $scope.KernelType.Sigmoid || current.Type == $scope.KernelType.Linear) {
+				
+					$scope.slope = current.Parameters[0];
+					$scope.intercept = current.Parameters[1];
+
+				} else if (current.Type == $scope.KernelType.Fourier) {
+				
+					$scope.scalingFactor = current.Parameters[0];
+				
+				}
+
+				$scope.passes = current.Passes;
+				$scope.regularization = current.Regularization;
+				$scope.tolerance = current.Tolerance; 				
+				$scope.category = current.Category;
+			}
+		}
+
+		$scope.RemoveModel = function() {
+
+			if ($scope.SelectedModel > 0 && $scope.SelectedModel <= $scope.Models.length) {
+
+				console.log("Remove Model: " + $scope.SelectedModel.toString());
+				
+				for (var i = 0; i < $scope.Models.length; i++) {
+					
+					if ($scope.Models[i].index == $scope.SelectedModel) {
+						
+						$scope.Models.splice(i, 1);
+
+						break;
+					}
+				}
+
+				$scope.RenumberModels();
+
+				$scope.SelectedModel = 0;
+
+				console.log($scope.Models);
+			}
+		};
+
+		$scope.UpdateModel = function() {
+
+			if ($scope.SelectedModel > 0 && $scope.SelectedModel <= $scope.Models.length) {
+
+				console.log("Update Model: " + $scope.SelectedModel.toString());
+			}
 		};
 
 	}]).directive("inputBind", function() {
