@@ -252,31 +252,6 @@ angular
 				var current = $scope.SelectedModel - 1;
 
 				console.log("Update Model: " + current.toString());
-
-				if (current.Type == $scope.KernelType.Polynomial) {
-				
-					$scope.bias = current.Parameters[0];
-					$scope.exponent = current.Parameters[1];
-				
-				} else if (current.Type == $scope.KernelType.Gaussian || current.Type == $scope.KernelType.Radial) {
-
-					$scope.sigma = current.Parameters[0];
-
-				} else if (current.Type == $scope.KernelType.Sigmoid || current.Type == $scope.KernelType.Linear) {
-				
-					$scope.slope = current.Parameters[0];
-					$scope.intercept = current.Parameters[1];
-
-				} else if (current.Type == $scope.KernelType.Fourier) {
-				
-					$scope.scalingFactor = current.Parameters[0];
-				
-				}
-
-				$scope.passes = current.Passes;
-				$scope.regularization = current.Regularization;
-				$scope.tolerance = current.Tolerance; 				
-				$scope.category = current.Category;
 			}
 		};
 
