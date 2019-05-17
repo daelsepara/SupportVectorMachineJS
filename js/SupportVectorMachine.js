@@ -139,6 +139,7 @@ angular
 			}
 		};
 
+		// re-number index numbers (after deletion)
 		$scope.RenumberModels = function() {
 
 			for (var i = 0; i < $scope.Models.length; i++) {
@@ -169,7 +170,7 @@ angular
 
 				} else if ($scope.SelectedKernel == $scope.KernelType.Fourier) {
 
-					var model = new ModelParameters($scope.Models.length + 1, $scope.Fourier, [$scope.scalingFactor], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
+					var model = new ModelParameters($scope.Models.length + 1, $scope.KernelType.Fourier, [$scope.scalingFactor], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
 					
 				}
 
@@ -182,6 +183,7 @@ angular
 			}
 		};
 
+		// Copy model parameters
 		$scope.SelectModel = function() {
 
 			if ($scope.SelectedModel > 0 && $scope.SelectedModel <= $scope.Models.length) {
@@ -190,7 +192,7 @@ angular
 
 				$scope.kernel = $scope.KernelNames[current.Type];
 				$scope.SelectedKernel = current.Type;
-				
+
 				if (current.Type == $scope.KernelType.Polynomial) {
 				
 					$scope.bias = current.Parameters[0];
@@ -218,6 +220,7 @@ angular
 			}
 		}
 
+		// remove model from list
 		$scope.RemoveModel = function() {
 
 			if ($scope.SelectedModel > 0 && $scope.SelectedModel <= $scope.Models.length) {
@@ -246,7 +249,34 @@ angular
 
 			if ($scope.SelectedModel > 0 && $scope.SelectedModel <= $scope.Models.length) {
 
-				console.log("Update Model: " + $scope.SelectedModel.toString());
+				var current = $scope.SelectedModel - 1;
+
+				console.log("Update Model: " + current.toString());
+
+				if (current.Type == $scope.KernelType.Polynomial) {
+				
+					$scope.bias = current.Parameters[0];
+					$scope.exponent = current.Parameters[1];
+				
+				} else if (current.Type == $scope.KernelType.Gaussian || current.Type == $scope.KernelType.Radial) {
+
+					$scope.sigma = current.Parameters[0];
+
+				} else if (current.Type == $scope.KernelType.Sigmoid || current.Type == $scope.KernelType.Linear) {
+				
+					$scope.slope = current.Parameters[0];
+					$scope.intercept = current.Parameters[1];
+
+				} else if (current.Type == $scope.KernelType.Fourier) {
+				
+					$scope.scalingFactor = current.Parameters[0];
+				
+				}
+
+				$scope.passes = current.Passes;
+				$scope.regularization = current.Regularization;
+				$scope.tolerance = current.Tolerance; 				
+				$scope.category = current.Category;
 			}
 		};
 

@@ -102,7 +102,7 @@
 									<div class = "col-sm-4">
 										<b>Models: {{Models.length}}</b><br/>
 										<select class="form-control" ng-model="SelectedModel" ng-change="SelectModel()" ng-disabled = "Training">
-											<option value = "0">None</option>
+											<option value = "0">Add Model</option>
 											<option ng-selected="{{SelectedModel == x.index}}" ng-repeat="x in Models" value = "{{x.index}}">Model {{x.index}}</option>	
 										</select>
 										<br/>
