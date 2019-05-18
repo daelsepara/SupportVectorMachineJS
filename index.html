@@ -47,7 +47,7 @@
 						<div class="tab-pane fade show active" id="pills-data" role="tabpanel" aria-labelledby="pills-data-tab">
 							<div class="container border border-secondary rounded">
 								<b>select file</b><br/>
-								<input type="file" multiple name="files" input-bind class="btn btn-outline-secondary" ng-disabled = "Training" /><br/><br/>
+								<input type="file" multiple name="trainingfiles" id = "trainingfiles" input-bind class="btn btn-outline-secondary" ng-disabled = "Training" /><br/><br/>
 								<b>delimiters</b><br/>
 								<select class="form-control" ng-model="delimiter" data-ng-options="x for x in DelimiterNames" ng-change="SelectDelimiter()" ng-disabled = "Training"></select><br/>
 								<input type="button" class="btn btn-outline-primary" value="Process data" ng-click="ReadTrainingData()" ng-disabled = "Training"/><br/><br/>
@@ -119,7 +119,7 @@
 						<div class="tab-pane fade" id="pills-classify" role="tabpanel" aria-labelledby="pills-classify-tab">
 							<div class="container border border-secondary rounded">
 								<b>select file</b><br/>
-								<input type="file" multiple name="files" test-bind class="btn btn-outline-secondary" ng-disabled = "Training" /><br/><br/>
+								<input type="file" multiple name="testfiles" id = "testfiles" test-bind class="btn btn-outline-secondary" ng-disabled = "Training" /><br/><br/>
 								<input type="button" class="btn btn-outline-primary" value="Process data" ng-click="ReadTestData()" ng-disabled = "Training"/><br/><br/>
 								<div class = "row">
 									<div class = "col-sm">
@@ -157,7 +157,8 @@
 								<br/>
 								<b>Model Parameters</b><br/>
 								<textarea ng-model = "modelParameters" rows="10" cols="80" style = "resize: none;" readonly></textarea><br/><br/>
-								<input type="button" class="btn btn-outline-primary" value="Save Models" ng-click="SaveModels()" ng-disabled = "Training" />&nbsp;<input type="button" class="btn btn-outline-success" value="Load Models" ng-click="LoadModels()" ng-disabled = "Training" />&nbsp;<input type="file" multiple name="files" machine-bind class="btn btn-outline-secondary" ng-disabled = "Training" /><br/><br/>							</div>
+								<input type="button" class="btn btn-outline-primary" value="Save Models" ng-click="SaveModels()" ng-disabled = "Training" /><!-- &nbsp;<input type="button" class="btn btn-outline-success" value="Load SVM Models" ng-click="LoadSVM()" ng-disabled = "Training" />&nbsp;<input type="file" multiple name="svmfiles" id = "svmfiles" network-bind class="btn btn-outline-secondary" ng-disabled = "Training" />--><br/><br/>
+							</div>
 							<br/>
 						</div>
 						<div class="tab-pane fade" id="pills-plot" role="tabpanel" aria-labelledby="pills-plot-tab">
@@ -187,6 +188,7 @@
 						<div class="tab-pane fade" id="pills-guide" role="tabpanel" aria-labelledby="pills-guide-tab">
 							<div class="container border border-secondary rounded">
 								<br/>
+								<h2>Under Construction</h2>
 							</div>
 							<br/><br/>
 						</div>
