@@ -606,13 +606,14 @@ angular
 				if (machine.Trained) {
 					
 					var WW = [];
-
+			
 					for (var y = 0; y < machine.W.length; y++) {
 
 						WW.push(machine.W[y][0]);
 					}
 
 					var parameters = {
+						
 						ModelX: machine.ModelX,
 						ModelY: machine.ModelY,
 						Type: machine.Type,
@@ -642,8 +643,6 @@ angular
 				for (var i = 0; i < $scope.Models.length; i++) {
 					
 					var machine = $scope.Models[i];
-
-					console.log(machine);
 
 					if (machine.Trained) {
 						

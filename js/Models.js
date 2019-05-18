@@ -110,7 +110,7 @@ class Matrix {
 			
 			for (var x = 0; x < srcx; x++) {
 				
-				dst[x][0] = [src[0][x]];
+				dst[x][0] = src[0][x];
 			}
 			
 			return dst;
