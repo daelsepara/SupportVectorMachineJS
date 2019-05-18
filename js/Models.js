@@ -744,35 +744,6 @@ class Matrix {
 };
 
 // see: https://stackoverflow.com/questions/28445693/how-do-i-make-a-public-static-field-in-an-es6-class
-class ModelParameters
-{
-	static get X() {
-
-		return 0;
-	}
-		
-	static get Y() {
-
-		return 1;
-	}
-	
-	static get ALPHA() {
-
-		return 2;
-	}
-	
-	static get W() {
-
-		return 3;
-	}
-
-	static get B() {
-
-		return 4;
-	}
-};
-
-// see: https://stackoverflow.com/questions/28445693/how-do-i-make-a-public-static-field-in-an-es6-class
 class KernelType
 {
 	static get POLYNOMIAL() { 
