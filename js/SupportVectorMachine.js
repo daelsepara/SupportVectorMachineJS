@@ -10,9 +10,9 @@ angular
 
 				this.index = id;
 				this.Type = type;
-				this.Parameters = parameters;
-				this.Regularization = regularization;
-				this.Passes = passes;
+				this.KernelParam = parameters;
+				this.C = regularization;
+				this.MaxIterations = passes;
 				this.Tolerance = tolerance;
 				this.Category = category;
 			}
@@ -28,8 +28,11 @@ angular
 		$scope.Categories = 0;
 		$scope.Items = 0;
 
-		$scope.Training = true;
+		$scope.Training = false;
 		$scope.TrainingProgress = 0;
+		$scope.ClassifierProgress = 0;
+		$scope.asyncTrainer = undefined;
+		$scope.asyncClassifier = undefined;
 
 		$scope.SelectedFile = {};
 		$scope.TestFile = {};
@@ -140,6 +143,55 @@ angular
 			}
 		};
 
+		$scope.ReadTestData = function() {
+			
+			$scope.TestData = [];
+			$scope.Samples = 0;
+			
+			var reader = new FileReader();
+
+			reader.onload = function(progressEvent) {
+
+				$scope.$apply(function() {
+					
+					var lines = reader.result.split('\n');
+					
+					var delimiter = $scope.SelectedDelimiter > 0 ? $scope.Delimiters[$scope.SelectedDelimiter - 1] : "\t";
+					
+					for (var line = 0; line < lines.length; line++) {
+
+						var tmp = [];
+
+						var tokens = lines[line].trim().split(delimiter);
+
+						if (tokens.length >= $scope.Inputs) {
+							
+							for (var i = 0; i < tokens.length; i++) {
+								
+								if (i >= 0 && i < $scope.Inputs)
+									tmp.push(parseFloat(tokens[i]));
+							}
+							
+							if (tmp.length > 0) {
+								
+								$scope.TestData.push(tmp);
+								
+								$scope.Samples++;
+							}
+						}
+					}
+					
+					$scope.testContent = reader.result.trim();
+					
+				});
+			}
+
+			if ($scope.TestFile.name != undefined) {
+				
+				reader.readAsText($scope.TestFile);
+			}
+		};
+
 		// re-number index numbers (after deletion)
 		$scope.RenumberModels = function() {
 
@@ -156,8 +208,6 @@ angular
 
 				var found = $scope.Models.findIndex(element => element.Category == $scope.category);
 
-				console.log('found: ' + found.toString());
-				
 				// Add only if model for a specific category has not yet been defined
 				if (found < 0) {
 
@@ -184,8 +234,6 @@ angular
 						
 						$scope.Models.push(model);
 					}
-
-					console.log($scope.Models);
 				}
 			}
 		};
@@ -202,25 +250,25 @@ angular
 
 				if (current.Type == $scope.KernelType.Polynomial) {
 				
-					$scope.bias = current.Parameters[0];
-					$scope.exponent = current.Parameters[1];
+					$scope.bias = current.KernelParam[0];
+					$scope.exponent = current.KernelParam[1];
 				
 				} else if (current.Type == $scope.KernelType.Gaussian || current.Type == $scope.KernelType.Radial) {
 
-					$scope.sigma = current.Parameters[0];
+					$scope.sigma = current.KernelParam[0];
 
 				} else if (current.Type == $scope.KernelType.Sigmoid || current.Type == $scope.KernelType.Linear) {
 				
-					$scope.slope = current.Parameters[0];
-					$scope.intercept = current.Parameters[1];
+					$scope.slope = current.KernelParam[0];
+					$scope.intercept = current.KernelParam[1];
 
 				} else if (current.Type == $scope.KernelType.Fourier) {
 				
-					$scope.scalingFactor = current.Parameters[0];
+					$scope.scalingFactor = current.KernelParam[0];
 				}
 
-				$scope.passes = current.Passes;
-				$scope.regularization = current.Regularization;
+				$scope.passes = current.MaxIterations;
+				$scope.regularization = current.C;
 				$scope.tolerance = current.Tolerance; 				
 				$scope.category = current.Category;
 			}
@@ -231,8 +279,6 @@ angular
 
 			if ($scope.SelectedModel > 0 && $scope.SelectedModel <= $scope.Models.length) {
 
-				console.log("Remove Model: " + $scope.SelectedModel.toString());
-				
 				for (var i = 0; i < $scope.Models.length; i++) {
 					
 					if ($scope.Models[i].index == $scope.SelectedModel) {
@@ -246,8 +292,6 @@ angular
 				$scope.RenumberModels();
 
 				$scope.SelectedModel = 0;
-
-				console.log($scope.Models);
 			}
 		};
 
@@ -257,31 +301,163 @@ angular
 
 			if (current >= 0 && current < $scope.Models.length) {
 
-				console.log("Update Model: " + (current + 1).toString());
-
-				$scope.Models[current].Type == $scope.SelectedKernel;
+				$scope.Models[current].Type = $scope.SelectedKernel;
 
 				if ($scope.SelectedKernel == $scope.KernelType.Polynomial) {
 
-					$scope.Models[current].Parameters = [$scope.bias, $scope.exponent];
+					$scope.Models[current].KernelParam = [$scope.bias, $scope.exponent];
 				
 				} else if ($scope.SelectedKernel == $scope.KernelType.Gaussian || $scope.SelectedKernel == $scope.KernelType.Radial) {
 
-					$scope.Models[current].Parameters = [$scope.sigma];
+					$scope.Models[current].KernelParam = [$scope.sigma];
 
 				} else if ($scope.SelectedKernel == $scope.KernelType.Sigmoid || $scope.SelectedKernel == $scope.KernelType.Linear) {
 
-					$scope.Models[current].Parameters = [$scope.slope, $scope.intercept];
+					$scope.Models[current].KernelParam = [$scope.slope, $scope.intercept];
 
 				} else if ($scope.SelectedKernel == $scope.KernelType.Fourier) {
 
-					$scope.Models[current].Parameters = [$scope.scalingFactor];
+					$scope.Models[current].KernelParam = [$scope.scalingFactor];
 				}
 
-				$scope.Models[current].Passes = $scope.passes;
-				$scope.Models[current].Regularization = $scope.regularization;
+				$scope.Models[current].MaxIterations = $scope.passes;
+				$scope.Models[current].C = $scope.regularization;
 				$scope.Models[current].Tolerance = $scope.tolerance; 				
 				$scope.Models[current].Category = $scope.category;
+			}
+		};
+
+		$scope.StopAsyncTrainer = function() {
+
+			if ($scope.asyncTrainer) {
+				
+				try {
+					
+					$scope.asyncTrainer.terminate();
+		
+					$scope.asyncTrainer  = null;
+					
+					$scope.Training = false;
+					
+					$scope.TrainingProgress = 0.0;
+					
+				} catch (err) {
+					
+					$scope.asyncTrainer = null;
+					
+					$scope.Training = false;
+					
+					$scope.TrainingProgress = 0.0;
+				}
+			}
+		}
+		
+		$scope.StopAsyncClassifier = function() {
+
+			if ($scope.asyncClassifier) {
+				
+				try {
+					
+					$scope.asyncClassifier.terminate();
+		
+					$scope.asyncClassifier  = null;
+					
+					$scope.ClassifierProgress = 0.0;
+					
+				} catch (err) {
+					
+					$scope.asyncClassifier = null;
+					
+					$scope.ClassifierProgress = 0.0;
+				}
+			}
+		}
+
+		$scope.AsyncTrainer = function() {
+
+			// function that will become a worker
+			function async(currentPath, input, output, models) {
+			
+				importScripts(currentPath + "js/Models.js");
+
+				var svms = [];
+
+				for (var i = 0; i < models.length; i++) {
+					
+					var model = models[i]; 
+					
+					var machine = new SupportVectorMachine();
+
+					machine.Setup(input, output, model.C, model.Type, model.KernelParam, model.Tolerance, model.MaxIterations, model.Category);
+
+					svms.push(machine);
+				}
+
+				var done = svms.length > 0 ? false : true;
+
+				while (!done) {
+					
+					done = true;
+
+					var MaxIterations = 0;
+					var Iterations = 0;
+
+					for (var i = 0; i < svms.length; i++) {
+
+						var result = svms[i].Step();
+
+						MaxIterations += svms[i].MaxIterations;
+						Iterations += svms[i].Iterations;
+
+						if (result && !svms[i].Trained) {
+
+                        	svms[i].Generate();
+                    	}
+
+						done &= result;
+					}
+
+					notify({Iterations: Iterations, MaxIterations: MaxIterations});
+				}
+
+				for (var i = 0; i < svms.length; i++) {
+
+					svms[i].index = i + 1;
+				}
+				
+				complete({models: svms});
+			}
+
+			if (!$scope.Training && $scope.Models.length > 0 && $scope.TrainingData.length > 0 && $scope.Output.length > 0) {
+					
+				var currentPath = document.URL;
+				
+				$scope.Training = true;
+				
+				// mark this worker as one that supports async notifications
+				$scope.asyncTrainer = Webworker.create(async, { async: true });
+
+				// uses the native $q style notification: https://docs.angularjs.org/api/ng/service/$q
+				$scope.asyncTrainer.run(currentPath, $scope.TrainingData, $scope.Output, $scope.Models).then(function(result) {
+					
+					// promise is resolved.
+
+					$scope.Models = result.models;
+					$scope.TrainingProgress = 1.0;
+					$scope.Training = false;
+					$scope.SelectedModel = 0;
+
+				}, null, function(result) {
+					
+					// promise has a notification
+
+					$scope.TrainingProgress = result.Iterations / result.MaxIterations;
+					
+				}).catch(function(oError) {
+					
+					$scope.asyncTrainer = null;
+					
+				});
 			}
 		};
 

@@ -108,9 +108,9 @@
 										<br/>
 										<button class="btn btn-outline-danger" value="Remove Model" ng-click="RemoveModel()" ng-disabled = "Training" ng-show = "Models.length > 0 && SelectedModel != 0"><i class="fas fa-times"></i>&nbsp;Remove Model</button></br/><br/>
 										<br/>
-										<progress class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" ng-show = "TrainingProgress > 0 && TrainingProgress < 1" value="{{TrainingProgress}}"></progress><br/ ng-show = "TrainingProgress > 0 && TrainingProgress < 1">
-										<button class="btn btn-success" value="Train Models" ng-click="TrainModels()" ng-disabled = "Training" ng-show = "Models.length > 0 && !Training"><i class="fas fa-play"></i>&nbsp;Train Models</button>
-										<button class="btn btn-danger" value="Stop Training" ng-click="StopTraining()" ng-disabled = "!Training" ng-show = "Models.length > 0 && Training"><i class="fas fa-stop"></i>&nbsp;Stop Training</button>
+										<progress class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" ng-show = "Training && TrainingProgress >= 0 && TrainingProgress < 1" value="{{TrainingProgress}}"></progress><br/ ng-show = "Training && TrainingProgress >= 0 && TrainingProgress < 1">
+										<button class="btn btn-success" value="Train Models" ng-click="AsyncTrainer()" ng-disabled = "Training" ng-show = "Models.length > 0 && !Training"><i class="fas fa-play"></i>&nbsp;Train Models</button>
+										<button class="btn btn-danger" value="Stop Training" ng-click="StopAsyncTrainer()" ng-disabled = "!Training" ng-show = "Models.length > 0 && Training"><i class="fas fa-stop"></i>&nbsp;Stop Training</button>
 									</div>
 								</div>
 							</div>
@@ -133,6 +133,11 @@
 									<div class = "col-sm">
 										<b>Classification</b><br/>
 										<textarea ng-model = "classificationResult" rows="4" cols="40" style = "resize: none;"></textarea><br/><br/>
+										<b>Models: {{Models.length}}</b><br/>
+										<select class="form-control" ng-model="SelectedModel" ng-change="SelectModel()" ng-disabled = "Training">
+											<option ng-selected="{{SelectedModel == x.index}}" ng-repeat="x in Models" value = "{{x.index}}">Model {{x.index}}</option>	
+										</select>
+										<br/>
 										<b>Threshold</b><br/>
 										<input class = "form-control" type="number" ng-model = "Threshold" name="Threshold" min="0.01" max="1" step = "0.01" value = "{{Threshold}}" ng-disabled = "Training" /><br/>
 										<input type="button" class="btn btn-outline-primary" value="Classify" ng-click="AsyncClassifier()" ng-disabled = "Training" /><br/><br/>

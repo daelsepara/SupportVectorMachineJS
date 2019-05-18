@@ -167,8 +167,8 @@ class Matrix {
 	// element by element multiplication (vector)
 	static MultiplyVector(A, B) {
 		
-		var Ax = A[0].length;
-		var Bx = B[0].length;
+		var Ax = A.length;
+		var Bx = B.length;
 		
 		if (Ax == Bx) {
 			
@@ -558,15 +558,15 @@ class Matrix {
 	// get sum of elements per row
 	static RowSums(A) {
 		
-		var result = this.Create(A.length);
+		var result = this.Create(A.length, 1);
 
 		for (var i = 0; i < A.length; i++) {
 			
-			result[i] = 0.0;
+			result[i][0] = 0.0;
 
 			for (var j = 0; j < A[0].length; j++) {
 				
-				result[i] += A[i][j];
+				result[i][0] += A[i][j];
 			}
 		}
 
@@ -576,15 +576,15 @@ class Matrix {
 	// get sum of elements per column
 	static ColSums(A) {
 		
-		var result = this.Create(A[0].length);
+		var result = this.Create(1, A[0].length);
 
 		for (var j = 0; j < A[0].length; j++) {
 			
-			result[j] = 0.0;
+			result[0][j] = 0.0;
 
 			for (var i = 0; i < A.length; i++) {
 				
-				result[j] += A[i][j];
+				result[0][j] += A[i][j];
 			}
 		}
 
@@ -657,7 +657,15 @@ class Matrix {
 
 		return result;
 	}
+	
+	static SetVector(A, value = 0.0) {
 		
+		for (var x = 0; x < A.length; x++) {
+			
+			A[x] = value;
+		}
+	}
+
 	static Set(A, value = 0.0) {
 		
 		var Ax = A[0].length, Ay = A.length;
@@ -945,17 +953,16 @@ class SupportVectorMachine {
 
 	constructor() {
 		
-		this.ModelX = [];
+		this.ModelX = undefined;
         this.ModelY = [];
         this.Type = KernelType.UNKNOWN;
-        this.KernelParam = [];
-        this.Alpha = [];
-        this.W = [];
+        this.KernelParam = undefined;
+        this.Alpha = undefined;
+        this.W = undefined;
         this.B = 0.0;
         this.C = 0.0;
         this.Tolerance = 0.0;
         this.Category = 0;
-        this.Passes = 0;
         this.Iterations = 0;
         this.MaxIterations = 0;
         this.Trained = false;
@@ -966,35 +973,34 @@ class SupportVectorMachine {
         this.alpha = [];
         this.dx = [];
         this.dy = [];
-        this.kparam = [];
         this.b = 0.0;
         this.eta = 0.0;
         this.H = 0.0;
         this.L = 0.0;
-        this.ktype = KernelType.UNKNOWN;
 	}
 
-	Model(x, y, type, kernelParam, alpha, b, w, passes) 
+	Intialize(x, y, type, parameters, alpha, b, w, passes, c) 
 	{
 		this.ModelX = x;
 		this.ModelY = y;
 		this.Type = type;
-		this.KernelParam = kernelParam;
+		this.KernelParam = parameters;
 		this.Alpha = alpha;
 		this.B = b;
 		this.W = w;
-		this.Passes = passes;
+		this.MaxIterations = passes;
 		this.Trained = true;
+		this.C = c;
 	}
 
 	Rows(x) {
 
-		return x[0].length;
+		return x.length;
 	}
 
 	Cols(x) {
 
-		return x.lengt;
+		return x[0].length;
 	}
 
 	Setup(x, y, c, kernel, param, tolerance = 0.001, maxpasses = 5, category = 1) {
@@ -1002,10 +1008,10 @@ class SupportVectorMachine {
 		this.dx = Matrix.Clone(x);
 		this.dy = Matrix.Clone(y);
 		
-		this.ktype = kernel;
-		
+		this.Type = kernel;
+	
 		// Data parameters
-		var m = this.Rows(dx);
+		var m = this.Rows(this.dx);
 
 		this.Category = category;
 		this.MaxIterations = maxpasses;
@@ -1013,11 +1019,15 @@ class SupportVectorMachine {
 		this.C = c;
 
 		// Reset internal variables
-		this.kparam = param;
+		this.KernelParam = param;
 
 		// Variables
 		this.alpha = Matrix.Create(m);
+		Matrix.SetVector(this.alpha, 0.0);
+
 		this.E = Matrix.Create(m);
+		Matrix.SetVector(this.E, 0.0);
+
 		this.b = 0;
 		this.Iterations = 0;
 
@@ -1026,12 +1036,12 @@ class SupportVectorMachine {
 		// gracefully will *not* do this)
 		if (kernel == KernelType.LINEAR) {
 
-			var tinput = Matrix.Transpose(dx);
+			var tinput = Matrix.Transpose(this.dx);
 
-			this.K = Matrix.Multiply(dx, tinput);
+			this.K = Matrix.Multiply(this.dx, tinput);
 
-			var slope = kparam.length > 0 ? kparam[0] : 1.0;
-			var inter = kparam.length > 1 ? kparam[1] : 0.0;
+			var slope = this.KernelParam.length > 0 ? this.KernelParam[0] : 1.0;
+			var inter = this.KernelParam.length > 1 ? this.KernelParam[1] : 0.0;
 
 			this.K = Matrix.MultiplyConstant(this.K, slope);
 			this.K = Matrix.AddConstant(this.K, inter);
@@ -1054,7 +1064,7 @@ class SupportVectorMachine {
 			tempK = Matrix.Add(tempK, temp1);
 			tempK = Matrix.Add(tempK, temp2);
 
-			var sigma = kparam.length > 0 ? kparam[0] : 1.0;
+			var sigma = this.KernelParam.length > 0 ? this.KernelParam[0] : 1.0;
 
 			var g = Math.abs(sigma) > 0.0 ? Math.exp(-1.0 / (2.0 * sigma * sigma)) : 0.0;
 
@@ -1073,13 +1083,13 @@ class SupportVectorMachine {
 
 			for (var i = 0; i < m; i++) {
 
-				Matrix.Copy2D(Xi, dx, 0, i);
+				Matrix.Copy2D(Xi, this.dx, 0, i);
 
 				for (var j = 0; j < m; j++) {
 
-					Matrix.Copy2D(Xj, dx, 0, j);
+					Matrix.Copy2D(Xj, this.dx, 0, j);
 
-					K[i][j] = KernelFunction.Run(kernel, Xi, Xj, kparam);
+					this.K[i][j] = KernelFunction.Run(kernel, Xi, Xj, this.KernelParam);
 
 					// the matrix is symmetric
 					this.K[j][i] = this.K[i][j];
@@ -1092,7 +1102,7 @@ class SupportVectorMachine {
 		this.H = 0;
 
 		// Map 0 (or other categories) to -1
-		for (var i = 0; i < dy.length; i++) {
+		for (var i = 0; i < this.dy.length; i++) {
 
 			this.dy[i] = parseInt(this.dy[i]) != this.Category ? -1 : 1;
 		}
@@ -1104,7 +1114,7 @@ class SupportVectorMachine {
 			return true;
 
 		// Data parameters
-		var m = dy.length;
+		var m = this.dy.length;
 
 		var num_changed_alphas = 0;
 
@@ -1120,7 +1130,7 @@ class SupportVectorMachine {
 
 			this.E[i] -= this.dy[i];
 
-			if ((this.dy[i] * this.E[i] < -this.Tolerance && this.alpha[i] < this.C) || (this.dy[i] * this.E[i] > this.Tolerance && this.alpha[i] > 0.0)) {
+			if (((this.dy[i] * this.E[i]) < -this.Tolerance && this.alpha[i] < this.C) || ((this.dy[i] * this.E[i]) > this.Tolerance && this.alpha[i] > 0.0)) {
 
 				// In practice, there are many heuristics one can use to select
 				// the i and j. In this simplified code, we select them randomly.
@@ -1137,7 +1147,7 @@ class SupportVectorMachine {
 
 				for (var yy = 0; yy < m; yy++) {
 
-					this.E[j] += this.alpha[yy] * this.dy[yy] * K[j][yy];
+					this.E[j] += this.alpha[yy] * this.dy[yy] * this.K[j][yy];
 				}
 
 				this.E[j] -= this.dy[j];
@@ -1181,26 +1191,26 @@ class SupportVectorMachine {
 				this.alpha[j] = Math.max(this.L, this.alpha[j]);
 
 				// Check if change in alpha is significant
-				if (Math.abs(this.alpha[j] - this.alpha_j_old) < this.Tolerance) {
+				if (Math.abs(this.alpha[j] - alpha_j_old) < this.Tolerance) {
 
 					// continue to next i. 
 					// replace anyway
-					this.alpha[j] = this.alpha_j_old;
+					this.alpha[j] = alpha_j_old;
 
 					continue;
 				}
 
 				// Determine value for alpha i using (16). 
-				this.alpha[i] = this.alpha[i] + this.dy[i] * this.dy[j] * (this.alpha_j_old - this.alpha[j]);
+				this.alpha[i] = this.alpha[i] + this.dy[i] * this.dy[j] * (alpha_j_old - this.alpha[j]);
 
 				// Compute b1 and b2 using (17) and (18) respectively. 
-				var b1 = this.b - this.E[i] - this.dy[i] * (this.alpha[i] - this.alpha_i_old) * this.K[i][j] - this.dy[j] * (this.alpha[j] - this.alpha_j_old) * this.K[i][j];
-				var b2 = this.b - this.E[j] - this.dy[i] * (this.alpha[i] - this.alpha_i_old) * this.K[i][j] - this.dy[j] * (this.alpha[j] - this.alpha_j_old) * this.K[j][j];
+				var b1 = this.b - this.E[i] - this.dy[i] * (this.alpha[i] - alpha_i_old) * this.K[i][j] - this.dy[j] * (this.alpha[j] - alpha_j_old) * this.K[i][j];
+				var b2 = this.b - this.E[j] - this.dy[i] * (this.alpha[i] - alpha_i_old) * this.K[i][j] - this.dy[j] * (this.alpha[j] - alpha_j_old) * this.K[j][j];
 
 				// Compute b by (19). 
 				if (0.0 < this.alpha[i] && this.alpha[i] < this.C) {
 
-					b = b1;
+					this.b = b1;
 				
 				} else if (0.0 < this.alpha[j] && this.alpha[j] < this.C) {
 
@@ -1229,8 +1239,8 @@ class SupportVectorMachine {
 
 	Generate() {
 		
-		var m = this.Rows(dx);
-		var n = this.Cols(dx);
+		var m = this.Rows(this.dx);
+		var n = this.Cols(this.dx);
 
 		var idx = 0;
 
@@ -1242,10 +1252,9 @@ class SupportVectorMachine {
 			}
 		}
 
-		this.ModelX = Matrix.Create(idx, this.Cols(dx));
+		this.ModelX = Matrix.Create(idx, this.Cols(this.dx));
 		this.ModelY = Matrix.Create(idx);
 		this.Alpha = Matrix.Create(idx);
-		this.KernelParam = Matrix.Clone(this.kparam);
 
 		var ii = 0;
 
@@ -1267,12 +1276,9 @@ class SupportVectorMachine {
 		}
 
 		this.B = this.b;
-		this.Passes = this.Iterations;
-		this.Type = this.ktype;
 
-		var axy = Matrix.MultiplyVector(alpha, dy);
-		var tay = Matrix.Transpose(axy);
-		var txx = Matrix.Multiply(tay, dx);
+		var axy = [Matrix.MultiplyVector(this.alpha, this.dy)];
+		var txx = Matrix.Multiply(axy, this.dx);
 
 		this.W = Matrix.Transpose(txx);
 
@@ -1401,6 +1407,7 @@ class SupportVectorMachine {
 				var p = Matrix.RowSums(Kernel);
 
 				Matrix.Copy2D(predictions, p, 0, 0);
+
 				predictions = Matrix.AddConstant(predictions, this.B);
 			
 			} else {
