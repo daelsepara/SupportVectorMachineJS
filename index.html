@@ -135,6 +135,7 @@
 										<textarea ng-model = "classificationResult" rows="4" cols="40" style = "resize: none;"></textarea><br/><br/>
 										<b>Models: {{Models.length}}</b><br/>
 										<select class="form-control" ng-model="SelectedModel" ng-change="SelectModel()" ng-disabled = "Training">
+											<option value = "0">All Models</option>
 											<option ng-selected="{{SelectedModel == x.index}}" ng-repeat="x in Models" value = "{{x.index}}">Model {{x.index}}</option>	
 										</select>
 										<br/>
@@ -148,7 +149,14 @@
 						</div>
 						<div class="tab-pane fade" id="pills-models" role="tabpanel" aria-labelledby="pills-models-tab">
 							<div class="container border border-secondary rounded">
+								<b>Models: {{Models.length}}</b><br/>
+								<select class="form-control" ng-model="SelectedModel" ng-change="DisplayModelParameters()" ng-disabled = "Training">
+									<option value = "0"></option>
+									<option ng-selected="{{SelectedModel == x.index}}" ng-repeat="x in Models" value = "{{x.index}}">Model {{x.index}}</option>	
+								</select>
 								<br/>
+								<b>Model Parameters</b><br/>
+								<textarea ng-model = "modelParameters" rows="10" cols="80" style = "resize: none;" readonly></textarea><br/><br/>
 							</div>
 							<br/>
 						</div>

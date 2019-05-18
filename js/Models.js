@@ -555,6 +555,18 @@ class Matrix {
 		return result;
 	}
 
+	static Column(x) {
+
+		var result = this.Create(x.length, 1);
+
+		for (var y = 0; y < x.length; y++) {
+
+			result[y][0] = x[y]; 
+		}
+
+		return result;
+	}
+
 	// get sum of elements per row
 	static RowSums(A) {
 		
@@ -979,7 +991,7 @@ class SupportVectorMachine {
         this.L = 0.0;
 	}
 
-	Intialize(x, y, type, parameters, alpha, b, w, passes, c) 
+	Initialize(x, y, type, parameters, alpha, b, w, passes, c, category) 
 	{
 		this.ModelX = x;
 		this.ModelY = y;
@@ -991,6 +1003,7 @@ class SupportVectorMachine {
 		this.MaxIterations = passes;
 		this.Trained = true;
 		this.C = c;
+		this.Category = category;
 	}
 
 	Rows(x) {
@@ -1336,7 +1349,7 @@ class SupportVectorMachine {
 
 		if (this.Trained) {
 
-			var x = [];
+			var x = Matrix.Clone(input);
 
 			if (this.Cols(input) == 1) {
 
@@ -1366,15 +1379,15 @@ class SupportVectorMachine {
 
 				var X1 = Matrix.RowSums(pX1);
 				var X2 = Matrix.Transpose(rX2);
-				var tX = Matrix.Transpose(ModelX);
-				var tY = Matrix.Transpose(ModelY);
-				var tA = Matrix.Transpose(Alpha);
+				var tX = Matrix.Transpose(this.ModelX);
+				var tY = Matrix.Transpose(Matrix.Column(this.ModelY));
+				var tA = Matrix.Transpose(Matrix.Column(this.Alpha));
 
 				var rows = this.Rows(X1);
 				var cols = this.Cols(X2);
 
-				var tempK = Matrix.Create(rows, cols);
-				var temp1 = Matrix.Create(cols, rows);
+				var tempK = Matrix.Create(cols, rows);
+				var temp1 = Matrix.Create(rows, cols);
 				var temp2 = Matrix.Multiply(x, tX);
 
 				temp2 = Matrix.MultiplyConstant(temp2, -2);
@@ -1409,7 +1422,7 @@ class SupportVectorMachine {
 				Matrix.Copy2D(predictions, p, 0, 0);
 
 				predictions = Matrix.AddConstant(predictions, this.B);
-			
+
 			} else {
 
 				var Xi = Matrix.Create(this.Cols(x));
@@ -1438,7 +1451,7 @@ class SupportVectorMachine {
 
 	Classify(input, threshold = 0.0) {
 		
-		var classification = Matrix.Create(this.RowsRows(input), 1);
+		var classification = Matrix.Create(this.Rows(input), 1);
 		
 		var predictions = this.Predict(input);
 

@@ -30,6 +30,7 @@ angular
 
 		$scope.Training = false;
 		$scope.TrainingProgress = 0;
+		$scope.Threshold = 0.9;
 		$scope.ClassifierProgress = 0;
 		$scope.asyncTrainer = undefined;
 		$scope.asyncClassifier = undefined;
@@ -458,6 +459,164 @@ angular
 					$scope.asyncTrainer = null;
 					
 				});
+			}
+		};
+
+		$scope.AsyncClassifier = function() {
+			
+			// function that will become a worker
+			function async(currentPath, input, models, selected, threshold) {
+
+				importScripts(currentPath + "js/Models.js");
+
+				var classification = Matrix.Create(input.length, 1);
+				Matrix.Set(classification, 0);
+
+				var prediction = Matrix.Create(input.length, 1);
+				Matrix.Set(prediction, 0);
+
+				if (selected != 0) {
+
+					var current = selected - 1;
+
+					if (models[current].Trained) {
+
+						var machine = new SupportVectorMachine();
+						
+						machine.Initialize(
+							models[current].ModelX,
+							models[current].ModelY,
+							models[current].Type,
+							models[current].KernelParam,
+							models[current].Alpha,
+							models[current].B,
+							models[current].W,
+							models[current].MaxIterations,
+							models[current].C,
+							models[current].Category
+						);
+						
+						classification = machine.Classify(input, threshold);
+						prediction = machine.Predict(input, threshold);
+					}
+
+				} else {
+
+					for (var i = 0; i < models.length; i++) {
+
+						if (models[i].Trained) {
+
+							var machine = new SupportVectorMachine();
+							
+							machine.Initialize(
+								models[i].ModelX,
+								models[i].ModelY,
+								models[i].Type,
+								models[i].KernelParam,
+								models[i].Alpha,
+								models[i].B,
+								models[i].W,
+								models[i].MaxIterations,
+								models[i].C,
+								models[i].Category
+							);
+							
+							var p = machine.Predict(input);
+							
+							for (var y = 0; y < p.length; y++)
+							{
+								if (p[y][0] > prediction[y][0]) {
+
+									prediction[y][0] = p[y][0];
+									classification[y][0] = p[y][0] >= threshold ? models[i].Category : 0;
+								}
+							}
+						}
+					}
+				}
+				
+				complete({classification: classification, prediction: prediction});
+			}
+
+			if (!$scope.Training && $scope.Samples > 0 && $scope.Inputs > 0 && $scope.TestData.length > 0 && $scope.Models != undefined) {
+				
+				var currentPath = document.URL;
+				
+				// mark this worker as one that supports async notifications
+				$scope.asyncClassifier = Webworker.create(async, { async: true });
+
+				// uses the native $q style notification: https://docs.angularjs.org/api/ng/service/$q
+				$scope.asyncClassifier.run(currentPath, $scope.TestData, $scope.Models, $scope.SelectedModel, $scope.Threshold).then(function(result) {
+					
+					// promise is resolved
+
+					$scope.classificationResult = '';
+					
+					if (result.classification != undefined) {
+						
+						$scope.Classification = result.classification;
+						
+						for(var i = 0; i < $scope.Classification.length; i++) {
+							
+							if (i > 0) {
+								
+								$scope.classificationResult += '\n';
+							}
+							
+							$scope.classificationResult += $scope.Classification[i][0].toString();
+						}
+					}
+					
+					if (result.prediction != undefined) {
+						
+						$scope.Prediction = result.prediction;
+					}
+					
+					$scope.ClassifierProgress = 1.0;
+					
+				}, null, function(progress) {
+					
+				}).catch(function(oError) {
+					
+					$scope.asyncClassifier = null;
+					
+				});
+			}
+		};
+
+		// https://stackoverflow.com/questions/26320525/prettify-json-data-in-textarea-input/26324037
+		$scope.PrettyPrint = function(json) {
+	
+			return JSON.stringify(json, undefined, 4);
+		};
+		
+		// copy model parameters
+		$scope.DisplayModelParameters = function() {
+
+			if ($scope.SelectedModel > 0 && $scope.SelectedModel <= $scope.Models.length) {
+
+				var machine = $scope.Models[$scope.SelectedModel - 1];
+
+				if (machine.Trained) {
+					
+					var parameters = {
+						ModelX: machine.ModelX,
+						ModelY: machine.ModelY,
+						Type: machine.Type,
+						KernelParam: machine.KernelParam,
+						W: machine.W,
+						B: machine.B,
+						C: machine.C,
+						Tolerance: machine.Tolerance,
+						Category: machine.Category,
+						Passes: machine.Iterations,
+						Iterations: machine.Iterations,
+						MaxIterations: machine.MaxIterations,
+						Trained: machine.Trained
+					};
+
+					$scope.modelParameters = $scope.PrettyPrint(parameters);
+				}
 			}
 		};
 
