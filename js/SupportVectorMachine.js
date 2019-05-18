@@ -19,9 +19,10 @@ angular
 		};
 
 		$scope.Models = [];
+		$scope.Normalization = [];
 		$scope.Classification = [];
 		$scope.Prediction = [];
-		
+
 		$scope.TrainingData = [];
 		$scope.Output = [];
 		$scope.Inputs = 0;
@@ -142,7 +143,7 @@ angular
 				
 				reader.readAsText($scope.SelectedFile);
 			}
-		};
+		}
 
 		$scope.ReadTestData = function() {
 			
@@ -191,7 +192,7 @@ angular
 				
 				reader.readAsText($scope.TestFile);
 			}
-		};
+		}
 
 		// re-number index numbers (after deletion)
 		$scope.RenumberModels = function() {
@@ -200,7 +201,7 @@ angular
 					
 				$scope.Models[i].index = i + 1;
 			}
-		};
+		}
 
 		// add model
 		$scope.AddModel = function() {
@@ -237,7 +238,7 @@ angular
 					}
 				}
 			}
-		};
+		}
 
 		// copy model parameters
 		$scope.SelectModel = function() {
@@ -294,7 +295,7 @@ angular
 
 				$scope.SelectedModel = 0;
 			}
-		};
+		}
 
 		$scope.UpdateModel = function() {
 
@@ -326,7 +327,7 @@ angular
 				$scope.Models[current].Tolerance = $scope.tolerance; 				
 				$scope.Models[current].Category = $scope.category;
 			}
-		};
+		}
 
 		$scope.StopAsyncTrainer = function() {
 
@@ -383,6 +384,11 @@ angular
 
 				var svms = [];
 
+				var temp = new SupportVectorMachine();
+
+				var resultNormalization = Matrix.Normalize(input);
+				var normalization = [resultNormalization.min, resultNormalization.max];
+
 				for (var i = 0; i < models.length; i++) {
 					
 					var model = models[i]; 
@@ -426,7 +432,7 @@ angular
 					svms[i].index = i + 1;
 				}
 				
-				complete({models: svms});
+				complete({models: svms, normalization: normalization});
 			}
 
 			if (!$scope.Training && $scope.Models.length > 0 && $scope.TrainingData.length > 0 && $scope.Output.length > 0) {
@@ -444,6 +450,7 @@ angular
 					// promise is resolved.
 
 					$scope.Models = result.models;
+					$scope.Normalization = result.normalization;
 					$scope.TrainingProgress = 1.0;
 					$scope.Training = false;
 					$scope.SelectedModel = 0;
@@ -457,15 +464,14 @@ angular
 				}).catch(function(oError) {
 					
 					$scope.asyncTrainer = null;
-					
 				});
 			}
-		};
+		}
 
 		$scope.AsyncClassifier = function() {
 			
 			// function that will become a worker
-			function async(currentPath, input, models, selected, threshold) {
+			function async(currentPath, input, normalization, models, selected, threshold) {
 
 				importScripts(currentPath + "js/Models.js");
 
@@ -538,7 +544,7 @@ angular
 				complete({classification: classification, prediction: prediction});
 			}
 
-			if (!$scope.Training && $scope.Samples > 0 && $scope.Inputs > 0 && $scope.TestData.length > 0 && $scope.Models != undefined) {
+			if (!$scope.Training && $scope.Samples > 0 && $scope.Inputs > 0 && $scope.TestData.length > 0 && $scope.Models != undefined && $scope.Normalization.length > 1) {
 				
 				var currentPath = document.URL;
 				
@@ -546,7 +552,7 @@ angular
 				$scope.asyncClassifier = Webworker.create(async, { async: true });
 
 				// uses the native $q style notification: https://docs.angularjs.org/api/ng/service/$q
-				$scope.asyncClassifier.run(currentPath, $scope.TestData, $scope.Models, $scope.SelectedModel, $scope.Threshold).then(function(result) {
+				$scope.asyncClassifier.run(currentPath, $scope.TestData, $scope.Normalization, $scope.Models, $scope.SelectedModel, $scope.Threshold).then(function(result) {
 					
 					// promise is resolved
 
@@ -582,13 +588,13 @@ angular
 					
 				});
 			}
-		};
+		}
 
 		// https://stackoverflow.com/questions/26320525/prettify-json-data-in-textarea-input/26324037
 		$scope.PrettyPrint = function(json) {
 	
 			return JSON.stringify(json, undefined, 4);
-		};
+		}
 		
 		// copy model parameters
 		$scope.DisplayModelParameters = function() {
@@ -599,12 +605,19 @@ angular
 
 				if (machine.Trained) {
 					
+					var WW = [];
+
+					for (var y = 0; y < machine.W.length; y++) {
+
+						WW.push(machine.W[y][0]);
+					}
+
 					var parameters = {
 						ModelX: machine.ModelX,
 						ModelY: machine.ModelY,
 						Type: machine.Type,
 						KernelParam: machine.KernelParam,
-						W: machine.W,
+						W: WW,
 						B: machine.B,
 						C: machine.C,
 						Tolerance: machine.Tolerance,
@@ -618,7 +631,62 @@ angular
 					$scope.modelParameters = $scope.PrettyPrint(parameters);
 				}
 			}
-		};
+		}
+
+		$scope.SaveModels = function() {
+			
+			if ($scope.Models != undefined && $scope.Normalization.length > 1) {
+				
+				var models = [];
+
+				for (var i = 0; i < $scope.Models.length; i++) {
+					
+					var machine = $scope.Models[i];
+
+					console.log(machine);
+
+					if (machine.Trained) {
+						
+						var WW = [];
+						
+						for (var y = 0; y < machine.W.length; y++) {
+							
+							WW.push(machine.W[y][0]);
+						}
+
+						var parameters = {
+							ModelX: machine.ModelX,
+							ModelY: machine.ModelY,
+							Type: machine.Type,
+							KernelParam: machine.KernelParam,
+							Alpha: machine.Alpha,
+							W: WW,
+							B: machine.B,
+							C: machine.C,
+							Tolerance: machine.Tolerance,
+							Category: machine.Category,
+							Passes: machine.Iterations,
+							Iterations: machine.Iterations,
+							MaxIterations: machine.MaxIterations,
+							Trained: machine.Trained
+						};
+
+						models.push(parameters);
+					}
+				}
+
+				var json = { Models: models, Normalization: $scope.Normalization };
+				var jsonString = JSON.stringify(json);
+				
+				var blob = new Blob([jsonString], {
+					
+					type: "application/json"
+					
+				});
+				
+				FileSaver.saveAs(blob, "Models.json");
+			}
+		}
 
 	}]).directive("inputBind", function() {
 		
@@ -651,6 +719,7 @@ angular
 				});
 			});
 		};
+
 	}).directive("modelBind", function() {
 		
 		return function(scope, elm, attrs) {

@@ -157,6 +157,7 @@
 								<br/>
 								<b>Model Parameters</b><br/>
 								<textarea ng-model = "modelParameters" rows="10" cols="80" style = "resize: none;" readonly></textarea><br/><br/>
+								<input type="button" class="btn btn-outline-primary" value="Save Models" ng-click="SaveModels()" ng-disabled = "Training" />&nbsp;<input type="button" class="btn btn-outline-success" value="Load Models" ng-click="LoadModels()" ng-disabled = "Training" />&nbsp;<input type="file" multiple name="files" model-bind class="btn btn-outline-secondary" ng-disabled = "Training" /><br/><br/>
 							</div>
 							<br/>
 						</div>

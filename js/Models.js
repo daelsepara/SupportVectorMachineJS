@@ -988,7 +988,7 @@ class SupportVectorMachine {
         this.b = 0.0;
         this.eta = 0.0;
         this.H = 0.0;
-        this.L = 0.0;
+		this.L = 0.0;
 	}
 
 	Initialize(x, y, type, parameters, alpha, b, w, passes, c, category) 
@@ -1461,19 +1461,5 @@ class SupportVectorMachine {
 		}
 
 		return classification;
-	}
-
-	Test(output, classification, category = 1) {
-		
-		var errors = 0;
-
-		for (var i = 0; i < classification.length; i++) {
-
-			var correct = parseInt(output[i]) != category ? 0 : category;
-
-			errors += correct != classification[i][0] ? 1 : 0;
-		}
-
-		return errors;
 	}
 };
