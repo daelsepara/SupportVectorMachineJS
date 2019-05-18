@@ -28,8 +28,9 @@ angular
 		$scope.Categories = 0;
 		$scope.Items = 0;
 
-		$scope.Training = false;
-		
+		$scope.Training = true;
+		$scope.TrainingProgress = 0;
+
 		$scope.SelectedFile = {};
 		$scope.TestFile = {};
 		$scope.ModelFile = {};

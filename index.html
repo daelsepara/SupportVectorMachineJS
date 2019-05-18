@@ -107,10 +107,11 @@
 										</select>
 										<br/>
 										<button class="btn btn-outline-danger" value="Remove Model" ng-click="RemoveModel()" ng-disabled = "Training" ng-show = "Models.length > 0 && SelectedModel != 0"><i class="fas fa-times"></i>&nbsp;Remove Model</button></br/><br/>
+										<br/>
+										<progress class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" ng-show = "TrainingProgress > 0 && TrainingProgress < 1" value="{{TrainingProgress}}"></progress><br/ ng-show = "TrainingProgress > 0 && TrainingProgress < 1">
+										<button class="btn btn-success" value="Train Models" ng-click="TrainModels()" ng-disabled = "Training" ng-show = "Models.length > 0 && !Training"><i class="fas fa-play"></i>&nbsp;Train Models</button>
+										<button class="btn btn-danger" value="Stop Training" ng-click="StopTraining()" ng-disabled = "!Training" ng-show = "Models.length > 0 && Training"><i class="fas fa-stop"></i>&nbsp;Stop Training</button>
 									</div>
-								</div>
-								<div class = "row">
-									<button class="btn btn-success" value="Train Models" ng-click="TrainModels()" ng-disabled = "Training" ng-show = "Models.length > 0"><i class="fas fa-plus"></i>&nbsp;Train Models</button>
 								</div>
 							</div>
 							<br/>
