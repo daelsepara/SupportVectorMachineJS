@@ -688,70 +688,69 @@ angular
 				
 				FileSaver.saveAs(blob, "Models.json");
 			}
+		}
 
-			$scope.LoadSVM = function() {
-			
-				$scope.Models = [];
-				$scope.Inputs = 0;
-				$scope.Categories = 0;
-				$scope.SelectedModel = 0;
-				
-				var reader = new FileReader();
-				
-				reader.onload = function(progressEvent) {
+		$scope.LoadSVM = function() {
 
-					$scope.$apply(function() {
+			$scope.Models = [];
+			$scope.Inputs = 0;
+			$scope.Categories = 0;
+			$scope.SelectedModel = 0;
 
-						var json = JSON.parse(reader.result);
-						
-						if (json.Models != undefined && json.Normalization != undefined) {
-							
-							$scope.Inputs = json.Models[0].ModelX[0].length;
+			var reader = new FileReader();
 
-							$scope.Normalization = json.Normalization;
+			reader.onload = function(progressEvent) {
 
-							for (var i = 0; i < json.Models.length; i++) {
-
-								var machine = json.Models[i];
-
-								var WW = [];
-
-								for (var x = 0; x < machine.W.length; x++) {
-
-									WW.push([machine.W[x]]);
-								}
-
-								$scope.Categories = Math.max(machine.Category, $scope.Categories);
-
-								var parameters = {
-
-									index: i + 1,
-									ModelX: machine.ModelX,
-									ModelY: machine.ModelY,
-									Type: machine.Type,
-									KernelParam: machine.KernelParam,
-									Alpha: machine.Alpha,
-									W: WW,
-									B: machine.B,
-									C: machine.C,
-									Tolerance: machine.Tolerance,
-									Category: machine.Category,
-									Iterations: machine.Iterations,
-									MaxIterations: machine.MaxIterations,
-									Trained: machine.Trained
-								};
-
-								$scope.Models.push(parameters);
-							}
-						}
-
-					});
-				}
-				
-				if ($scope.NetworkFile.name != undefined) {
+				$scope.$apply(function() {
 					
-					reader.readAsText($scope.NetworkFile);
-				}
+					var json = JSON.parse(reader.result);
+					
+					if (json.Models != undefined && json.Normalization != undefined) {
+						
+						$scope.Normalization = json.Normalization;
+						$scope.Inputs = json.Models[0].ModelX[0].length;
+						
+						for (var i = 0; i < json.Models.length; i++) {
+
+							var machine = json.Models[i];
+
+							var WW = [];
+
+							$scope.Categories = Math.max($scope.Categories, machine.Category);
+							
+							for (var y = 0; y < machine.W.length; y++) {
+						
+								WW.push([machine.W[y]]);
+							}
+
+							var parameters = {
+								
+								index: i + 1,
+								ModelX: machine.ModelX,
+								ModelY: machine.ModelY,
+								Type: machine.Type,
+								KernelParam: machine.KernelParam,
+								Alpha: machine.Alpha,
+								W: WW,
+								B: machine.B,
+								C: machine.C,
+								Tolerance: machine.Tolerance,
+								Category: machine.Category,
+								Passes: machine.Iterations,
+								Iterations: machine.Iterations,
+								MaxIterations: machine.MaxIterations,
+								Trained: machine.Trained
+							};
+
+							$scope.Models.push(parameters);
+						}
+					}
+				});
+			}
+
+			if ($scope.NetworkFile.name != undefined) {
+				
+				reader.readAsText($scope.NetworkFile);
 			}
 		}
 

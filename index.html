@@ -10,7 +10,7 @@
 	<script src="js/ng-webworker.min.js"></script>
 	<script src="js/angular-file-saver.bundle.min.js"></script>
 	<script src="js/d3.min.js"></script>
-	<script src="js/SupportVectorMachine.js"></script>
+	<script src="js/SupportVectorMachine.min.js"></script>
 	<style>
 	</style>
 </head>
@@ -157,7 +157,7 @@
 								<br/>
 								<b>Model Parameters</b><br/>
 								<textarea ng-model = "modelParameters" rows="10" cols="80" style = "resize: none;" readonly></textarea><br/><br/>
-								<input type="button" class="btn btn-outline-primary" value="Save Models" ng-click="SaveModels()" ng-disabled = "Training" /><!-- &nbsp;<input type="button" class="btn btn-outline-success" value="Load SVM Models" ng-click="LoadSVM()" ng-disabled = "Training" />&nbsp;<input type="file" multiple name="svmfiles" id = "svmfiles" network-bind class="btn btn-outline-secondary" ng-disabled = "Training" />--><br/><br/>
+								<input type="button" class="btn btn-outline-primary" value="Save Models" ng-click="SaveModels()" ng-disabled = "Training" />&nbsp;<input type="button" class="btn btn-outline-success" value="Load SVM Models" ng-click="LoadSVM()" ng-disabled = "Training" />&nbsp;<input type="file" multiple name="svmfiles" id = "svmfiles" network-bind class="btn btn-outline-secondary" ng-disabled = "Training" /><br/><br/>
 							</div>
 							<br/>
 						</div>
