@@ -7,6 +7,7 @@ angular
 		class ModelParameters {
 
 			constructor(id, type, parameters, regularization, passes, tolerance, category) {
+
 				this.index = id;
 				this.Type = type;
 				this.Parameters = parameters;
@@ -129,7 +130,6 @@ angular
 					}
 					
 					$scope.fileContent = reader.result.trim();
-					
 				});
 			}
 
@@ -145,45 +145,51 @@ angular
 			for (var i = 0; i < $scope.Models.length; i++) {
 					
 				$scope.Models[i].index = i + 1;
-					
 			}
-
 		};
 
+		// add model
 		$scope.AddModel = function() {
 
 			if ($scope.category != 0) {
 
-				var model = undefined;
+				var found = $scope.Models.findIndex(element => element.Category == $scope.category);
 
-				if ($scope.SelectedKernel == $scope.KernelType.Polynomial) {
-
-					var model = new ModelParameters($scope.Models.length + 1, $scope.KernelType.Polynomial, [$scope.bias, $scope.exponent], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
+				console.log('found: ' + found.toString());
 				
-				} else if ($scope.SelectedKernel == $scope.KernelType.Gaussian || $scope.SelectedKernel == $scope.KernelType.Radial) {
+				// Add only if model for a specific category has not yet been defined
+				if (found < 0) {
 
-					var model = new ModelParameters($scope.Models.length + 1, $scope.SelectedKernel == $scope.KernelType.Gaussian ? $scope.KernelType.Gaussian : $scope.KernelType.Radial, [$scope.sigma], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
+					var model = undefined;
 
-				} else if ($scope.SelectedKernel == $scope.KernelType.Sigmoid || $scope.SelectedKernel == $scope.KernelType.Linear) {
+					if ($scope.SelectedKernel == $scope.KernelType.Polynomial) {
 
-					var model = new ModelParameters($scope.Models.length + 1, $scope.SelectedKernel == $scope.KernelType.Sigmoid ? $scope.KernelType.Sigmoid : $scope.KernelType.Linear, [$scope.slope, $scope.intercept], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
-
-				} else if ($scope.SelectedKernel == $scope.KernelType.Fourier) {
-
-					var model = new ModelParameters($scope.Models.length + 1, $scope.KernelType.Fourier, [$scope.scalingFactor], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
+						var model = new ModelParameters($scope.Models.length + 1, $scope.KernelType.Polynomial, [$scope.bias, $scope.exponent], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
 					
-				}
+					} else if ($scope.SelectedKernel == $scope.KernelType.Gaussian || $scope.SelectedKernel == $scope.KernelType.Radial) {
 
-				if (model != undefined) {
-					
-					$scope.Models.push(model);
-				}
+						var model = new ModelParameters($scope.Models.length + 1, $scope.SelectedKernel == $scope.KernelType.Gaussian ? $scope.KernelType.Gaussian : $scope.KernelType.Radial, [$scope.sigma], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
 
-				console.log($scope.Models);
+					} else if ($scope.SelectedKernel == $scope.KernelType.Sigmoid || $scope.SelectedKernel == $scope.KernelType.Linear) {
+
+						var model = new ModelParameters($scope.Models.length + 1, $scope.SelectedKernel == $scope.KernelType.Sigmoid ? $scope.KernelType.Sigmoid : $scope.KernelType.Linear, [$scope.slope, $scope.intercept], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
+
+					} else if ($scope.SelectedKernel == $scope.KernelType.Fourier) {
+
+						var model = new ModelParameters($scope.Models.length + 1, $scope.KernelType.Fourier, [$scope.scalingFactor], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
+					}
+
+					if (model != undefined) {
+						
+						$scope.Models.push(model);
+					}
+
+					console.log($scope.Models);
+				}
 			}
 		};
 
-		// Copy model parameters
+		// copy model parameters
 		$scope.SelectModel = function() {
 
 			if ($scope.SelectedModel > 0 && $scope.SelectedModel <= $scope.Models.length) {
@@ -210,7 +216,6 @@ angular
 				} else if (current.Type == $scope.KernelType.Fourier) {
 				
 					$scope.scalingFactor = current.Parameters[0];
-				
 				}
 
 				$scope.passes = current.Passes;
@@ -247,11 +252,35 @@ angular
 
 		$scope.UpdateModel = function() {
 
-			if ($scope.SelectedModel > 0 && $scope.SelectedModel <= $scope.Models.length) {
+			var current = $scope.SelectedModel - 1;
 
-				var current = $scope.SelectedModel - 1;
+			if (current >= 0 && current < $scope.Models.length) {
 
-				console.log("Update Model: " + current.toString());
+				console.log("Update Model: " + (current + 1).toString());
+
+				$scope.Models[current].Type == $scope.SelectedKernel;
+
+				if ($scope.SelectedKernel == $scope.KernelType.Polynomial) {
+
+					$scope.Models[current].Parameters = [$scope.bias, $scope.exponent];
+				
+				} else if ($scope.SelectedKernel == $scope.KernelType.Gaussian || $scope.SelectedKernel == $scope.KernelType.Radial) {
+
+					$scope.Models[current].Parameters = [$scope.sigma];
+
+				} else if ($scope.SelectedKernel == $scope.KernelType.Sigmoid || $scope.SelectedKernel == $scope.KernelType.Linear) {
+
+					$scope.Models[current].Parameters = [$scope.slope, $scope.intercept];
+
+				} else if ($scope.SelectedKernel == $scope.KernelType.Fourier) {
+
+					$scope.Models[current].Parameters = [$scope.scalingFactor];
+				}
+
+				$scope.Models[current].Passes = $scope.passes;
+				$scope.Models[current].Regularization = $scope.regularization;
+				$scope.Models[current].Tolerance = $scope.tolerance; 				
+				$scope.Models[current].Category = $scope.category;
 			}
 		};
 
