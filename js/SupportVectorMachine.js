@@ -1214,7 +1214,7 @@ angular
 								}
 							}
 
-							Contour(svg, data, xplot, yplot, [-1.0, -0.9, -0.5, 0, 0.5, 0.9, 1.0], line);
+							Contour(svg, data, xplot, yplot, [-1.0, -0.9, -0.5, 0.5, 0.9, 1.0], line);
 						}
 						
 					}, null, function(progress) {
