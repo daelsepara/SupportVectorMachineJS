@@ -819,16 +819,7 @@ angular
 					return data;
 				}
 
-				// see: https://www.dashingd3js.com/svg-basic-shapes-and-d3js
-				/// <summary>
-				/// Renderer delegate
-				/// </summary>
-				/// <param name="graph">SVG container</param>
-				/// <param name="x1">Start point x-coordinate</param>
-				/// <param name="y1">Start point y-coordinate</param>
-				/// <param name="x2">End point x-coordinate</param>
-				/// <param name="y2">End point y-coordinate</param>
-				/// <param name="z">Contour level</param>
+				// draw line on svg container
 				function AddLine(graph, x1, y1, x2, y2, z) {
 
 					graph.append("line")
@@ -856,7 +847,7 @@ angular
 					function generateMesh(x, width, height) {
 
 						var m = x.length;
-	
+						
 						var xplot = new Array(width);
 						var yplot = new Array(height);
 	
@@ -944,6 +935,8 @@ angular
 					/// computer contouring is the process is usually CPU intensive and the algorithms
 					/// often use advanced mathematical techniques making them susceptible to error.
 					/// </para></remarks>
+					///
+					/// Converted to JavaScript by sdsepara (2019)
 					function Contour(graph, d, x, y, z, renderer) {
 						
 						var minColor = Math.abs(Math.min.apply(null, z));
@@ -981,9 +974,7 @@ angular
 			
 						for (var j = jub - 1; j >= jlb; j--) {
 
-							var i;
-
-							for (i = ilb; i <= iub - 1; i++) {
+							for (var i = ilb; i <= iub - 1; i++) {
 
 								var temp1 = Math.min(d[i][j], d[i][j + 1]);
 								var temp2 = Math.min(d[i + 1][j], d[i + 1][j + 1]);
@@ -1045,16 +1036,17 @@ angular
 											//// though this isimportant only when all 3 vertices lie exactly on
 											//// the same contour level, in which case only the side of the box
 											//// is drawn.
+											////
 											//// vertex 4 +-------------------+ vertex 3
-											//// | \               / |
-											//// |   \    m-3    /   |
-											//// |     \       /     |
-											//// |       \   /       |
-											//// |  m=2    X   m=2   |       the centre is vertex 0
-											//// |       /   \       |
-											//// |     /       \     |
-											//// |   /    m=1    \   |
-											//// | /               \ |
+											////          | \               / |
+											////          |   \    m-3    /   |
+											////          |     \       /     |
+											////          |       \   /       |
+											////          |  m=2    X   m=2   |       the centre is vertex 0
+											////          |       /   \       |
+											////          |     /       \     |
+											////          |   /    m=1    \   |
+											////          | /               \ |
 											//// vertex 1 +-------------------+ vertex 2
 			
 											// Scan each triangle in the box
@@ -1225,8 +1217,6 @@ angular
 					complete({lines: lines});
 				}
 
-				var contourLines = [];
-
 				if (!$scope.Training && $scope.TestData.length > 0 && $scope.Models != undefined) {
 				
 					var currentPath = document.URL;
@@ -1240,7 +1230,7 @@ angular
 						// promise is resolved
 						if (result.lines != undefined) {
 							
-							contourLines = result.lines;
+							var contourLines = result.lines;
 
 							ContourLines(svg, contourLines);
 						}
