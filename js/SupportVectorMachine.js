@@ -70,6 +70,7 @@ angular
 
 		$scope.PlotWidth = 1024;
 		$scope.PlotHeight = 1024;
+		$scope.plotContours = false;
 		
 		$scope.SelectDelimiter = function() {
 			
@@ -1217,7 +1218,7 @@ angular
 					complete({lines: lines});
 				}
 
-				if (!$scope.Training && $scope.TestData.length > 0 && $scope.Models != undefined) {
+				if (!$scope.Training && $scope.TestData.length > 0 && $scope.Models != undefined && $scope.plotContours) {
 				
 					var currentPath = document.URL;
 					

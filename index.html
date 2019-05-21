@@ -166,7 +166,11 @@
 								<br/>
 								<div class = "row">
 									<div class = "col">
-										<input type="button" class="btn btn-outline-primary" value="Render Test Data" ng-click="RenderTestData()" ng-disabled = "Training" />&nbsp;<input type="button" class="btn btn-outline-success" value="Save Render" ng-click="SaveRenderedData()" ng-disabled = "Training" /><br/><br/>
+										<div class="custom-control custom-checkbox">
+											<input type="checkbox" class="custom-control-input" id="plotContours" ng-model = "plotContours" ng-checked = "plotContours" ng-disabled = "Training">
+											<label class="custom-control-label" for="plotContours">plot contour lines</label>
+										</div>
+										<br/><input type="button" class="btn btn-outline-primary" value="Render Test Data" ng-click="RenderTestData()" ng-disabled = "Training" />&nbsp;<input type="button" class="btn btn-outline-success" value="Save Render" ng-click="SaveRenderedData()" ng-disabled = "Training" /><br/><br/>
 									</div>
 								</div>
 								<div class = "row">
