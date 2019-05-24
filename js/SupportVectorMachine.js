@@ -507,8 +507,24 @@ angular
 							models[current].Category
 						);
 						
-						classification = machine.Classify(input, threshold);
-						prediction = machine.Predict(input, threshold);
+						for (var item = 0; item < input.length; item += 100) {
+
+							var p = machine.Predict(input.slice(item, item + 100));
+
+							for (var y = 0; y < p.length; y++) {
+
+								if (p[y][0] > prediction[item + y][0]) {
+
+									prediction[item + y][0] = p[y][0];
+
+									classification[item + y][0] = p[y][0] >= threshold ? machine.Category : 0;
+								}
+							}
+
+							var ClassifierProgress = item/input.length;
+							
+							notify({ClassifierProgress: ClassifierProgress});
+						}
 					}
 
 				} else {
@@ -545,6 +561,10 @@ angular
 										classification[item + y][0] = p[y][0] >= threshold ? models[i].Category : 0;
 									}
 								}
+
+								var ClassifierProgress = (i * input.length + item)/(models.length * input.length);
+								
+								notify({ClassifierProgress: ClassifierProgress});
 							}
 						}
 					}
@@ -555,6 +575,8 @@ angular
 
 			if (!$scope.Training && $scope.Samples > 0 && $scope.Inputs > 0 && $scope.TestData.length > 0 && $scope.Models != undefined) {
 				
+				$scope.ClassifierProgress = 0.0;
+
 				var currentPath = document.URL;
 				
 				// mark this worker as one that supports async notifications
@@ -590,6 +612,8 @@ angular
 					$scope.ClassifierProgress = 1.0;
 					
 				}, null, function(progress) {
+
+					$scope.ClassifierProgress = progress.ClassifierProgress;
 					
 				}).catch(function(oError) {
 					
@@ -1134,6 +1158,10 @@ angular
 										}
 									}
 								}
+
+								var ClassifierProgress = 0.5 + 0.5 * (((jub - j - 1) * (iub + 1) + i) / ((jub + 1) * (iub + 1))); 
+
+								notify({ClassifierProgress: ClassifierProgress});
 							}
 						}
 					}
@@ -1183,6 +1211,10 @@ angular
 										prediction[item + y][0] = p[y][0];
 									}
 								}
+
+								var ClassifierProgress = (i * mesh.length + item)/(models.length * mesh.length) * 0.25;
+								
+								notify({ClassifierProgress: ClassifierProgress});
 							}
 						}
 					}
@@ -1204,10 +1236,17 @@ angular
 								xplot[x] = (xplot[x] - minx)/(maxx - minx);
 							}
 							
-							if (ii >= 0 && ii < prediction.length)
+							if (ii >= 0 && ii < prediction.length) {
+
 								data[y][x] = prediction[ii];
-							
+
+								var ClassifierProgress = 0.25 + (ii / prediction.length) * 0.25; 
+
+								notify({ClassifierProgress: ClassifierProgress});
+							}
+								
 							ii ++;
+
 						}
 					}
 
@@ -1220,6 +1259,8 @@ angular
 
 				if (!$scope.Training && $scope.TestData.length > 0 && $scope.Models != undefined && $scope.plotContours) {
 				
+					$scope.ClassifierProgress = 0.0;
+
 					var currentPath = document.URL;
 					
 					// mark this worker as one that supports async notifications
@@ -1228,6 +1269,8 @@ angular
 					// uses the native $q style notification: https://docs.angularjs.org/api/ng/service/$q
 					$scope.asyncPlotter.run(currentPath, $scope.TestData, $scope.Models, $scope.Threshold).then(function(result) {
 						
+						$scope.ClassifierProgress = 1.0;
+
 						// promise is resolved
 						if (result.lines != undefined) {
 							
@@ -1238,6 +1281,8 @@ angular
 						
 					}, null, function(progress) {
 						
+						$scope.ClassifierProgress = progress.ClassifierProgress;
+
 					}).catch(function(oError) {
 						
 						$scope.asyncPlotter = null;
