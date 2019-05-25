@@ -87,13 +87,13 @@
 										</div>
 										<b ng-show = "Categories > 0">Category</b><br ng-show = "Categories > 0"/>
 										<input class = "form-control" type="number" ng-model = "category" name="category" min="1" max="{{Categories}}" step = "1" value = "{{category}}" ng-show = "Categories > 0" ng-disabled = "Training" /><br/>
-										<button class="btn btn-outline-primary" value="Add Model" ng-click="AddModel()" ng-disabled = "Training" ng-show = "SelectedModel == 0"><i class="fas fa-plus"></i>&nbsp;Add Model</button>
-										<button class="btn btn-outline-success" value="Update Model" ng-click="UpdateModel()" ng-disabled = "Training" ng-show = "Models.length > 0 && SelectedModel > 0 && SelectedModel <= Models.length"><i class="fas fa-check"></i>&nbsp;Update Model</button>
+										<button class="btn btn-outline-primary" value="Add Model" ng-click="AddModel()" ng-disabled = "Training || (ClassifierProgress > 0 && ClassifierProgress < 1)" ng-show = "SelectedModel == 0"><i class="fas fa-plus"></i>&nbsp;Add Model</button>
+										<button class="btn btn-outline-success" value="Update Model" ng-click="UpdateModel()" ng-disabled = "Training || (ClassifierProgress > 0 && ClassifierProgress < 1)" ng-show = "Models.length > 0 && SelectedModel > 0 && SelectedModel <= Models.length"><i class="fas fa-check"></i>&nbsp;Update Model</button>
 										</br/><br/>
 									</div>
 									<div class = "col-sm-4">
 										<b>SVM Regularization</b><br/>
-										<input class = "form-control" type="number" ng-model = "regularization" name="regularization" min="1" max="100" step = "1" value = "{{regularization}}" ng-disabled = "Training" /><br/>
+										<input class = "form-control" type="number" ng-model = "regularization" name="regularization" min="1" max="10000" step = "1" value = "{{regularization}}" ng-disabled = "Training" /><br/>
 										<b>Maximum # of passes</b><br/>
 										<input class = "form-control" type="number" ng-model = "passes" name="passes" min="1" max="100" step = "1" value = "{{passes}}" ng-disabled = "Training" /><br/>
 										<b>Tolerance</b><br/>
@@ -106,10 +106,10 @@
 											<option ng-selected="{{SelectedModel == x.index}}" ng-repeat="x in Models" value = "{{x.index}}">Model {{x.index}}</option>	
 										</select>
 										<br/>
-										<button class="btn btn-outline-danger" value="Remove Model" ng-click="RemoveModel()" ng-disabled = "Training" ng-show = "Models.length > 0 && SelectedModel != 0"><i class="fas fa-times"></i>&nbsp;Remove Model</button></br/><br/>
+										<button class="btn btn-outline-danger" value="Remove Model" ng-click="RemoveModel()" ng-disabled = "Training || (ClassifierProgress > 0 && ClassifierProgress < 1)" ng-show = "Models.length > 0 && SelectedModel != 0"><i class="fas fa-times"></i>&nbsp;Remove Model</button></br/><br/>
 										<br/>
 										<progress class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" ng-show = "Training && TrainingProgress >= 0 && TrainingProgress < 1" value="{{TrainingProgress}}"></progress><br/ ng-show = "Training && TrainingProgress >= 0 && TrainingProgress < 1">
-										<button class="btn btn-success" value="Train Models" ng-click="AsyncTrainer()" ng-disabled = "Training" ng-show = "Models.length > 0 && !Training"><i class="fas fa-play"></i>&nbsp;Train Models</button>
+										<button class="btn btn-success" value="Train Models" ng-click="AsyncTrainer()" ng-disabled = "Training || (ClassifierProgress > 0 && ClassifierProgress < 1)" ng-show = "Models.length > 0 && !Training"><i class="fas fa-play"></i>&nbsp;Train Models</button>
 										<button class="btn btn-danger" value="Stop Training" ng-click="StopAsyncTrainer()" ng-disabled = "!Training" ng-show = "Models.length > 0 && Training"><i class="fas fa-stop"></i>&nbsp;Stop Training</button>
 									</div>
 								</div>
@@ -119,8 +119,8 @@
 						<div class="tab-pane fade" id="pills-classify" role="tabpanel" aria-labelledby="pills-classify-tab">
 							<div class="container border border-secondary rounded">
 								<b>select file</b><br/>
-								<input type="file" multiple name="testfiles" id = "testfiles" test-bind class="btn btn-outline-secondary" ng-disabled = "Training" /><br/><br/>
-								<input type="button" class="btn btn-outline-primary" value="Process data" ng-click="ReadTestData()" ng-disabled = "Training"/><br/><br/>
+								<input type="file" multiple name="testfiles" id = "testfiles" test-bind class="btn btn-outline-secondary" ng-disabled = "Training || (ClassifierProgress > 0 && ClassifierProgress < 1)" /><br/><br/>
+								<input type="button" class="btn btn-outline-primary" value="Process data" ng-click="ReadTestData()" ng-disabled = "Training || (ClassifierProgress > 0 && ClassifierProgress < 1)"/><br/><br/>
 								<div class = "row">
 									<div class = "col-sm">
 										<b>Test data</b><br/>
@@ -158,7 +158,7 @@
 								<br/>
 								<b>Model Parameters</b><br/>
 								<textarea ng-model = "modelParameters" rows="10" cols="80" style = "resize: none;" readonly></textarea><br/><br/>
-								<input type="button" class="btn btn-outline-primary" value="Save Models" ng-click="SaveModels()" ng-disabled = "Training" />&nbsp;<input type="button" class="btn btn-outline-success" value="Load SVM Models" ng-click="LoadSVM()" ng-disabled = "Training" />&nbsp;<input type="file" multiple name="svmfiles" id = "svmfiles" network-bind class="btn btn-outline-secondary" ng-disabled = "Training" /><br/><br/>
+								<input type="button" class="btn btn-outline-primary" value="Save Models" ng-click="SaveModels()" ng-disabled = "Training || (ClassifierProgress > 0 && ClassifierProgress < 1)" />&nbsp;<input type="button" class="btn btn-outline-success" value="Load SVM Models" ng-click="LoadSVM()" ng-disabled = "Training || (ClassifierProgress > 0 && ClassifierProgress < 1)" />&nbsp;<input type="file" multiple name="svmfiles" id = "svmfiles" network-bind class="btn btn-outline-secondary" ng-disabled = "Training || (ClassifierProgress > 0 && ClassifierProgress < 1)" /><br/><br/>
 							</div>
 							<br/>
 						</div>
@@ -168,7 +168,7 @@
 								<div class = "row">
 									<div class = "col">
 										<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input" id="plotContours" ng-model = "plotContours" ng-checked = "plotContours" ng-disabled = "Training">
+											<input type="checkbox" class="custom-control-input" id="plotContours" ng-model = "plotContours" ng-checked = "plotContours" ng-disabled = "Training || (ClassifierProgress > 0 && ClassifierProgress < 1)">
 											<label class="custom-control-label" for="plotContours">plot contour lines</label>
 										</div>
 										<br/>

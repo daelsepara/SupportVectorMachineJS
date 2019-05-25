@@ -610,7 +610,9 @@ angular
 					}
 					
 					$scope.ClassifierProgress = 1.0;
-					
+
+					d3.select("#plot").selectAll("*").remove();
+
 				}, null, function(progress) {
 
 					$scope.ClassifierProgress = progress.ClassifierProgress;
@@ -786,13 +788,58 @@ angular
 
 		$scope.RenderTestData = function() {
 			
-			if ($scope.TestData.length > 0 && $scope.Classification.length > 0 && $scope.Classification.length ==  $scope.TestData.length && $scope.Normalization != undefined) {
+			if ($scope.TestData.length > 0 && $scope.Classification.length > 0 && $scope.Classification.length ==  $scope.TestData.length) {
 				
-				// modified scatter plot example - https://bl.ocks.org/aleereza/d2be3d62a09360a770b79f4e5527eea8
-				
-				var width = $scope.PlotWidth, height = $scope.PlotHeight;
+				function generatePointsData(test, classification) {
+					
+					var data = [];
+					var n = test.length;
+					
+					var minx = Number.MAX_VALUE;
+					var maxx = Number.MIN_VALUE;
+		
+					var miny = Number.MAX_VALUE;
+					var maxy = Number.MIN_VALUE;
+					
+					var f1 = 0;
+					var f2 = 1;
+		
+					for (var i = 0; i < n; i++) {
 
-				var color = d3.scaleOrdinal(d3.schemeCategory10);
+						minx = Math.min(test[i][f1], minx);
+						maxx = Math.max(test[i][f1], maxx);
+		
+						miny = Math.min(test[i][f2], miny);
+						maxy = Math.max(test[i][f2], maxy);
+					}
+
+					var deltax = (maxx - minx) / 200;
+					var deltay = (maxy - miny) / 200;
+					
+					minx = minx - 8 * deltax;
+					maxx = maxx + 8 * deltax;
+					miny = miny - 8 * deltay;
+					maxy = maxy + 8 * deltay;
+
+					deltax = (maxx - minx) / 200;
+					deltay = (maxy - miny) / 200;
+
+					for (i = 0; i < n; i++) {
+
+						var dataPoint = {};
+						
+						dataPoint["x"] = (test[i][f1] - minx) / deltax;
+						dataPoint["y"] = (test[i][f2] - miny) / deltay;						
+						dataPoint["color"] = classification[i];
+						
+						data.push(dataPoint);
+					}
+
+					return data;
+				}
+
+				// modified scatter plot example - https://bl.ocks.org/aleereza/d2be3d62a09360a770b79f4e5527eea8
+				var width = $scope.PlotWidth, height = $scope.PlotHeight;
 
 				var svg = d3.select("#plot")
 					.attr("width", width)
@@ -802,20 +849,20 @@ angular
 
 				// create scale objects
 				var xScale = d3.scaleLinear()
-					.domain([0,  1])
-					.range([0.1*width, 0.8*width]);
+					.domain([0, 200])
+					.range([0.1 * width, 0.8 * width]);
 			  
 				var yScale = d3.scaleLinear()
-					.domain([0, 1])
-					.range([0.8*height, 0.1*height]);
-				
-				var color = d3.scaleOrdinal(d3.schemeCategory10);
+					.domain([0, 200])
+					.range([0.8 * height, 0.1 * height]);
+
+				var color = d3.scaleOrdinal().domain([0, d3.schemeCategory10.length - 1]).range(d3.schemeCategory10);
 
 				// draw data points
 				var points_g = svg.append("g")
 					.classed("points_g", true);
 				
-				data = generatePointsData($scope.TestData, $scope.Classification, $scope.Normalization[0], $scope.Normalization[1]);
+				data = generatePointsData($scope.TestData, $scope.Classification);
 				
 				var points = points_g.selectAll("circle").data(data);
 
@@ -823,27 +870,14 @@ angular
 					.attr('cx', function(d) {return xScale(d.x)})
               		.attr('cy', function(d) {return yScale(d.y)})
               		.attr('r', 5)
-              		.style("fill", function(d) { return color(d.color); });
+              		.style("fill", function(d) { return color(parseInt(d.color))});
 
-				function generatePointsData(test, classification, min, max) {
-					
-					var data = [];
-					var n = test.length;
-
-					for (i = 0; i < n; i++) {
-
-						var dataPoint = {};
-
-						dataPoint["x"] = (test[i][0] - min[0]) / (max[0] - min[0]);
-						dataPoint["y"] = (test[i][1] - min[1]) / (max[1] - min[1]);
-						dataPoint["color"] = classification[i];
-						
-						data.push(dataPoint);
-					}
-
-					return data;
-				}
-
+				// draw boundaries
+				svg.append("line").attr("x1", 0.1 * width).attr("y1", 0.1 * height).attr("x2", 0.8 * width).attr("y2", 0.1 * height).attr("stroke-width", 1.0).attr("stroke", "#000000");
+				svg.append("line").attr("x1", 0.1 * width).attr("y1", 0.8 * height).attr("x2", 0.8 * width).attr("y2", 0.8 * height).attr("stroke-width", 1.0).attr("stroke", "#000000");
+				svg.append("line").attr("x1", 0.1 * width).attr("y1", 0.1 * height).attr("x2", 0.1 * width).attr("y2", 0.8 * height).attr("stroke-width", 1.0).attr("stroke", "#000000");
+				svg.append("line").attr("x1", 0.8 * width).attr("y1", 0.1 * height).attr("x2", 0.8 * width).attr("y2", 0.8 * height).attr("stroke-width", 1.0).attr("stroke", "#000000");
+					  
 				// draw line on svg container
 				function AddLine(graph, x1, y1, x2, y2, z) {
 
@@ -853,8 +887,7 @@ angular
 						.attr("x2", xScale(x2))
 						.attr("y2", yScale(y2))
 						.attr("stroke-width", 1.0)
-						.attr("stroke", color(Math.abs(z)))
-						.attr("fill", "none");
+						.attr("stroke", color(z));
 				}
 
 				function ContourLines(graph, lines) {
@@ -867,7 +900,7 @@ angular
 				}
 
 				// function that will become a worker
-				function async(currentPath, input, models, threshold) {
+				function async(currentPath, input, models, selected, threshold) {
 
 					function generateMesh(x, width, height) {
 
@@ -901,10 +934,10 @@ angular
 						maxx = maxx + 8 * deltax;
 						miny = miny - 8 * deltay;
 						maxy = maxy + 8 * deltay;
-	
+
 						deltax = (maxx - minx) / width;
 						deltay = (maxy - miny) / height;
-	
+			
 						for (var j = 0; j < width; j++) {
 	
 							xplot[j] = minx + j * deltax;
@@ -925,7 +958,7 @@ angular
 							}
 						}
 	
-						return {mesh: xx, xplot: xplot, yplot: yplot, minx: minx, maxx: maxx, miny: miny, maxy: maxy};
+						return {mesh: xx, xplot: xplot, yplot: yplot, minx: minx, miny: miny, deltax: deltax, deltay: deltay};
 					}
 					
 					// see: https://www.dashingd3js.com/svg-basic-shapes-and-d3js
@@ -1172,16 +1205,19 @@ angular
 					var xplot = meshResults.xplot;
 					var yplot = meshResults.yplot;
 					var minx = meshResults.minx;
-					var maxx = meshResults.maxx;
 					var miny = meshResults.miny;
-					var maxy = meshResults.maxy;
+					var deltax = meshResults.deltax;
+					var deltay = meshResults.deltay;
 
 					importScripts(currentPath + "js/Models.js");
 
 					var prediction = Matrix.Create(mesh.length, 1);
-					Matrix.Set(prediction, 0);
+					Matrix.Set(prediction, -1); // set to negative example by default
 
 					for (var i = 0; i < models.length; i++) {
+
+						if (selected != 0 && (selected - 1) != i)
+							continue;
 
 						if (models[i].Trained) {
 
@@ -1205,10 +1241,17 @@ angular
 								var p = machine.Predict(mesh.slice(item, item + 100));
 
 								for (var y = 0; y < p.length; y++) {
-
-									if (p[y][0] > prediction[item + y][0]) {
-
+									
+									if (selected != 0 && (selected - 1) == i) {
+										
 										prediction[item + y][0] = p[y][0];
+
+									} else {
+									
+										if (p[y][0] > prediction[item + y][0]) {
+
+											prediction[item + y][0] = p[y][0];
+										}
 									}
 								}
 
@@ -1227,13 +1270,13 @@ angular
 						
 						data[y] = new Array(xplot.length)								
 						
-						yplot[y] = (yplot[y] - miny)/(maxy - miny);
+						yplot[y] = (yplot[y] - miny) / deltay;
 
 						for (var x = 0; x < xplot.length; x++) {
 
 							if (y == 0) {
 
-								xplot[x] = (xplot[x] - minx)/(maxx - minx);
+								xplot[x] = (xplot[x] - minx) / deltax;
 							}
 							
 							if (ii >= 0 && ii < prediction.length) {
@@ -1252,7 +1295,7 @@ angular
 
 					var lines = [];
 
-					Contour(lines, data, xplot, yplot, [-1.0, -0.9, -0.5, 0.0, 0.5, 0.9, 1.0], line);
+					Contour(lines, data, xplot, yplot, [-1.0, 0.0, 1.0], line);
 
 					complete({lines: lines});
 				}
@@ -1267,7 +1310,7 @@ angular
 					$scope.asyncPlotter = Webworker.create(async, { async: true });
 				
 					// uses the native $q style notification: https://docs.angularjs.org/api/ng/service/$q
-					$scope.asyncPlotter.run(currentPath, $scope.TestData, $scope.Models, $scope.Threshold).then(function(result) {
+					$scope.asyncPlotter.run(currentPath, $scope.TestData, $scope.Models, $scope.SelectedModel, $scope.Threshold).then(function(result) {
 						
 						$scope.ClassifierProgress = 1.0;
 

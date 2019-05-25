@@ -1334,6 +1334,7 @@ class SupportVectorMachine {
 			var m = this.Rows(x);
 
 			predictions = Matrix.Create(m, 1);
+			Matrix.Set(predictions, 0.0);
 
 			if (this.Type == KernelType.LINEAR) {
 
