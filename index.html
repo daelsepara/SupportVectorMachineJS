@@ -194,8 +194,42 @@
 						</div>
 						<div class="tab-pane fade" id="pills-guide" role="tabpanel" aria-labelledby="pills-guide-tab">
 							<div class="container border border-secondary rounded">
-								<br/>
-								<h2>Under Construction</h2>
+								<h2><b class = "text-primary">Data</b></h2>
+								<p>Data is loaded from a text file. To begin, select the file by clicking on the "Browse" button and choose the file you want to process on the dialog window that appears. Select the delimiter type. Once a file is and the delimiter is selected, click on the "Process Data" button to begin the loading and processing of the training data.</p>
+								<p>Each line in the file is a training example with one or more features followed by its the classification category. Each of these values are separated by a delimiter, e.g. tabs, spaces, commas, etc.</p>
+								<div class = "alert-primary">
+									<p class = "text-primary"><b>Example 1</b></p>
+									<p class = "text-secondary"><b>0,1,1</b></p>
+								</div>
+								<p>In the above example, the line contains 3 values separated by a comma delimiter. This means that the training example has 2 features (0, 1) and its classification category is 1.</p>
+								<div class = "alert-primary">
+									<p class = "text-primary"><b>Example 2</b></p>
+									<p class = "text-secondary"><b>8.55&nbsp;26.3&nbsp;2</b></p>
+								</div>
+								<p>Example 2 also has 2 features (8.55, 26.3) and a classification category of 2, separated by spaces</p>
+								<p>If there are several examples provided in the text file, it will estimate the number of categories. If the text file loading and processing succeeded, the status indicator will look similar to the one below:</p>
+								<div class="alert alert-success" role="alert">
+									<span><b>Items</b>: 788 <b>Input features</b>: 2 <b>Categories</b>: 7</span>
+								</div>
+								<p>A failure in the loading and processing is also similarly indicated:</p>
+								<div class="alert alert-danger" role="alert">
+									<span><b>Items</b>: 0 <b>Input features</b>: 0 <b>Categories</b>: 0</span>
+								</div>
+								<p>Most loading and processing errors that occur are due to the mismatch between the chosen delimiter and the one used by the file.</p>
+								<h2><b class = "text-primary">Training</b></h2>
+								<p>Support vector machines are binary classifiers. In order to train a model to perform multi-class/category classification, multiple models are needed, i.e. one model for each class/category. Input data is mapped into a new space via "kernels" to enhance the separability between different classes. SVMs are usually slower to train compared to other machine learning methods. Furthermore, mapping input data into new spaces also incurs a performance penalty. It is therefore recommended that multiclass SVMs are only utilized for small data sets.</p>
+								<p>Kernels requires one or two parameters, e.g. (&sigma;, slope, intercept, etc.). A model cannot be added if another model has the same <b>Category</b> number or if it has a value beyond those obtained from the loaded data.</p>
+								<b class = "text-primary">Regularization, Tolerance, Passes, Category</b>
+								<p>The regularization parameter <b>C</b> controls the ability of the trained model to generalized on an unseen data, i.e. the trade-off between low error on the training set, versus a low error on the test set. </p>
+								<p>The <b>Tolerance</b> parameter is used for determinining the equality between floating point values, i.e. if difference between floating point values is less than the tolerance value then the two floating point values are "equal".</p>
+								<p>The training process iterates over the training examples up to the limit set by the <b>Passes</b> parameter. The process terminates if it has reached the maximum number of passes. If the model's &alpha; parameter values do not change or if the difference is less than the <b>Tolerance</b> value it completes 1 pass, otherwise the counter is reset.</p>
+								<p>The <b>Category</b> parameter controls what the model should consider as a positive example, e.g. Category = 1 means that it only considers examples classified as 1 to be a positive example. For data sets comprising several categories, a separate model must be trained for each unique category.</p>
+								<h2><b class = "text-primary">Classify</b></h2>
+								<p>Test data is also loaded from a text file similarly. Select the file by clicking on the "Browse" button and choose the file you want to process on the dialog window that appears. Click on the "Process data" to load the test data. Similar success or failure indicators are also shown based on the results of the loading process. Set the classification threshold and click on the "Classify" button to classify the loaded test data. The threshold value indicates the minimum prediction score required to classify one sample into a specific category. You can choose to classify using only one model or classify with all models by choosing "All models" from the model selector. Classifying with "All models" will expose each test data point to all models will choose the best classification result.</p>
+								<h2><b class = "text-primary">Models</b></h2>
+								<p>Trained model parameters are viewable in this page. You can also save or load these trained model parameters to/from a JSON file. This JSON file is fully compatible with the <a href = "https://github.com/daelsepara/SVMClassifier" target = _blank >Support Vector Machine Classifier</a> software and can be used interchangeably with that program.</p>
+								<h2><b class = "text-primary">Plot</b></h2>
+								<p>Plot the classified test data or save it as a scalable vector graphics (SVG) file. Contour lines (decision boundaries) display is optional.</p>
 							</div>
 							<br/><br/>
 						</div>
