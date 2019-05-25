@@ -1357,13 +1357,11 @@ class SupportVectorMachine {
 				var rows = this.Rows(X1);
 				var cols = this.Cols(X2);
 
-				var tempK = Matrix.Create(cols, rows);
-				var temp1 = Matrix.Create(rows, cols);
 				var temp2 = Matrix.Multiply(x, tX);
 
 				temp2 = Matrix.MultiplyConstant(temp2, -2);
-				tempK = Matrix.Expand(X1, cols, 1);
-				temp1 = Matrix.Expand(X2, 1, rows);
+				var tempK = Matrix.Expand(X1, cols, 1);
+				var temp1 = Matrix.Expand(X2, 1, rows);
 
 				tempK = Matrix.Add(tempK, temp1);
 				tempK = Matrix.Add(tempK, temp2);
@@ -1379,11 +1377,8 @@ class SupportVectorMachine {
 
 				var Kernel = Matrix.Powers(g, tempK);
 
-				var tempY = Matrix.Create(rows, this.Cols(tY));
-				var tempA = Matrix.Create(rows, this.Cols(tA));
-
-				tempY = Matrix.Expand(tY, 1, rows);
-				tempA = Matrix.Expand(tA, 1, rows);
+				var tempY = Matrix.Expand(tY, 1, rows);
+				var tempA = Matrix.Expand(tA, 1, rows);
 
 				Kernel = Matrix.Product(Kernel, tempY);
 				Kernel = Matrix.Product(Kernel, tempA);
