@@ -853,7 +853,7 @@ angular
 						.attr("x2", xScale(x2))
 						.attr("y2", yScale(y2))
 						.attr("stroke-width", 1.0)
-						.attr("stroke", color(z))
+						.attr("stroke", color(Math.abs(z)))
 						.attr("fill", "none");
 				}
 
