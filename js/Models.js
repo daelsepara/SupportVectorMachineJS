@@ -1399,8 +1399,8 @@ class SupportVectorMachine {
 
 			} else {
 				
-				var Xi = Matrix.Create(this.Cols(x));
-				var Xj = Matrix.Create(this.Cols(this.ModelX));
+				var Xi = Matrix.Create(1, this.Cols(x));
+				var Xj = Matrix.Create(1, this.Cols(this.ModelX));
 
 				for (var i = 0; i < m; i++) {
 
