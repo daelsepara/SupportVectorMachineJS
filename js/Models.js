@@ -241,7 +241,9 @@ class Matrix {
 	
 	// matrix summation
 	static Sum(A) {
-		
+
+		var Ax = A[0].length, Ay = A.length;
+
 		var sum = 0.0;
 
 		for (var y = 0; y < Ay; y++) {
@@ -257,6 +259,8 @@ class Matrix {
 	// get sum of squares of each element
 	static SquareSum(A) {
 		
+		var Ax = A[0].length, Ay = A.length;
+
 		var sum = 0.0;
 
 		for (var y = 0; y < Ay; y++) {
@@ -535,11 +539,11 @@ class Matrix {
 	}
 	
 	// Transforms x into a column vector
-	static Vector(x) {
+	static Vector(A) {
 		
-		var temp = this.Transpose(x);
+		var temp = this.Transpose(A);
 
-		var result = this.Create(x.length * x[0].length);
+		var result = this.Create(A.length * A[0].length);
 		
 		var i = 0;
 		
@@ -741,7 +745,7 @@ class Matrix {
 		
 		return result;
 	}
-};
+}
 
 // see: https://stackoverflow.com/questions/28445693/how-do-i-make-a-public-static-field-in-an-es6-class
 class KernelType
@@ -780,7 +784,7 @@ class KernelType
 		
 		return -1;
 	}
-};
+}
 
 class KernelFunction {
 
@@ -930,7 +934,7 @@ class KernelFunction {
 
 		return result;
 	}
-};
+}
 
 class SupportVectorMachine {
 
@@ -1393,7 +1397,7 @@ class SupportVectorMachine {
 			} else {
 
 				var Xi = Matrix.Create(this.Cols(x));
-				var Xj = Matrix.Create(this.Cols(ModelX));
+				var Xj = Matrix.Create(this.Cols(this.ModelX));
 
 				for (var i = 0; i < m; i++) {
 
@@ -1401,9 +1405,9 @@ class SupportVectorMachine {
 
 					Matrix.Copy2D(Xi, x, 0, i);
 
-					for (var j = 0; j < this.Rows(ModelX); j++) {
+					for (var j = 0; j < this.Rows(this.ModelX); j++) {
 
-						Matrix.Copy2D(Xj, ModelX, 0, j);
+						Matrix.Copy2D(Xj, this.ModelX, 0, j);
 
 						prediction += this.Alpha[j] * this.ModelY[j] * KernelFunction.Run(this.Type, Xi, Xj, this.KernelParam);
 					}
@@ -1429,4 +1433,4 @@ class SupportVectorMachine {
 
 		return classification;
 	}
-};
+}
