@@ -57,7 +57,7 @@ class Matrix {
 			
 			for (var y = 0; y < dst.length; y++) {
 				
-				this.MemCopy(dst[y], 0, src[y], minx, dst[0].length);
+				this.MemCopy(dst[y], 0, src[miny + y], minx, dst[0].length);
 			}
 		}
 	}
@@ -69,7 +69,7 @@ class Matrix {
 			
 			for (var y = 0; y < src.length; y++) {
 				
-				this.MemCopy(dst[y], minx, src[y], 0, src[0].length);
+				this.MemCopy(dst[miny + y], minx, src[y], 0, src[0].length);
 			}
 		}
 	}
@@ -546,7 +546,7 @@ class Matrix {
 		var result = this.Create(A.length * A[0].length);
 		
 		var i = 0;
-		
+
 		for (var y = 0; y < temp.length; y++) {
 			for (var x = 0; x < temp[0].length; x++) {
 				
@@ -555,7 +555,7 @@ class Matrix {
 				i++;
 			}
 		}
-		
+
 		return result;
 	}
 
@@ -806,15 +806,16 @@ class KernelFunction {
 	}
 
 	static Multiply(x1, x2) {
-
-		this.Vectorize(x1, x2);
+		
+		var v1 = Matrix.Vector(x1);
+		var v2 = Matrix.Vector(x2);
 
 		var x = 0.0;
 
-		if (x1.length == x2.length) {
+		if (v1.length == v2.length) {
 			
-			for (var i = 0; i < x1.length; i++)
-				x += x1[i] * x2[i];
+			for (var i = 0; i < v1.length; i++)
+				x += v1[i] * v2[i];
 		}
 
 		return x;
@@ -822,15 +823,16 @@ class KernelFunction {
 
 	static SquaredDiff(x1, x2) {
 
-		this.Vectorize(x1, x2);
+		var v1 = Matrix.Vector(x1);
+		var v2 = Matrix.Vector(x2);
 		
 		var x = 0.0;
 
-		if (x1.length == x2.length) {
+		if (v1.length == v2.length) {
 			
-			for (var i = 0; i < x1.length; i++) {
+			for (var i = 0; i < v1.length; i++) {
 
-				var d = x1[i] - x2[i];
+				var d = v1[i] - v2[i];
 	
 				x += d * d;
 			}
@@ -883,17 +885,18 @@ class KernelFunction {
 
 	static Fourier(x1, x2, k) {
 
-		this.Vectorize(x1, x2);
+		var v1 = Matrix.Vector(x1);
+		var v2 = Matrix.Vector(x2);
 
-		var z = Matrix.Create(x1.length);
+		var z = Matrix.Create(v1.length);
 		var prod = 0.0;
 		var m = k.length > 0 ? k[0] : 1.0;
 
-		for (var i = 0; i < x1.length; i++) {
+		for (var i = 0; i < v1.length; i++) {
 
 			z[i] = Math.sin(m + 0.5) * 2.0;
 
-			var d = x1[i] - x2[i];
+			var d = v1[i] - v2[i];
 
 			z[i] = Math.abs(d) > 0.0 ? Math.sin(m + 0.5) * d / Math.sin(d * 0.5) : z[i];
 
@@ -1068,7 +1071,7 @@ class SupportVectorMachine {
 			this.K = Matrix.Create(m, m);
 			var Xi = Matrix.Create(1, this.Cols(this.dx));
 			var Xj = Matrix.Create(1, this.Cols(this.dx));
-
+			
 			for (var i = 0; i < m; i++) {
 
 				Matrix.Copy2D(Xi, this.dx, 0, i);
@@ -1395,7 +1398,7 @@ class SupportVectorMachine {
 				predictions = Matrix.AddConstant(predictions, this.B);
 
 			} else {
-
+				
 				var Xi = Matrix.Create(this.Cols(x));
 				var Xj = Matrix.Create(this.Cols(this.ModelX));
 

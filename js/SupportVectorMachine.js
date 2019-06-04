@@ -16,7 +16,7 @@ angular
 				this.Tolerance = tolerance;
 				this.Category = category;
 			}
-		};
+		}
 
 		$scope.Models = [];
 		$scope.Normalization = [];
