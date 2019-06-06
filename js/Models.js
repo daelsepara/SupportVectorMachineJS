@@ -79,13 +79,14 @@ class Matrix {
 		
 		var srcy = src.length;
 		var srcx = src[0].length;
+		var dst, x, y;
 
 		if (srcy > 1 && srcx > 1) {
 		
-			var dst = this.Create(srcx, srcy);
+			dst = this.Create(srcx, srcy);
 			
-			for (var y = 0; y < srcy; y++) {
-				for (var x = 0; x < srcx; x++) {
+			for (y = 0; y < srcy; y++) {
+				for (x = 0; x < srcx; x++) {
 					
 					dst[x][y] = src[y][x];
 				}
@@ -95,9 +96,9 @@ class Matrix {
 			
 		} else if (srcy > 1 && srcx == 1) {
 			
-			var dst = this.Create(1, srcy);
+			dst = this.Create(1, srcy);
 			
-			for (var y = 0; y < srcy; y++) {
+			for (y = 0; y < srcy; y++) {
 				
 				dst[y] = src[y][0];
 			}
@@ -106,9 +107,9 @@ class Matrix {
 			
 		} else if (srcx > 1 && srcy == 1) {
 			
-			var dst = this.Create(srcx, 1);
+			dst = this.Create(srcx, 1);
 			
-			for (var x = 0; x < srcx; x++) {
+			for (x = 0; x < srcx; x++) {
 				
 				dst[x][0] = src[0][x];
 			}
@@ -276,15 +277,17 @@ class Matrix {
 	// mean of 2D array along a dimension
 	static Mean(src, dim) {
 		
+		var result, x, y, sum;
+
 		if (dim === 1) {
 			
-			var result = this.Create(src[0].length);
+			result = this.Create(src[0].length);
 			
-			for (var x = 0; x < src[0].length; x++) {
+			for (x = 0; x < src[0].length; x++) {
 				
-				var sum = 0.0;
+				sum = 0.0;
 
-				for (var y = 0; y < src.length; y++) {
+				for (y = 0; y < src.length; y++) {
 					
 					sum += src[y][x];
 				}
@@ -296,13 +299,13 @@ class Matrix {
 			
 		} else {
 			
-			var result = this.Create(src.length);
+			result = this.Create(src.length);
 
-			for (var y = 0; y < src.length; y++) {
+			for (y = 0; y < src.length; y++) {
 				
-				var sum = 0.0;
+				sum = 0.0;
 
-				for (var x = 0; x < src[0].length; x++) {
+				for (x = 0; x < src[0].length; x++) {
 					
 					sum += src[y][x];
 				}
@@ -702,22 +705,24 @@ class Matrix {
 		var maxvals = this.Create(Ax);
 		var minvals = this.Create(Ax);
 		
-		for (var x = 0; x < Ax; x++) {
+		var x, y;
+
+		for (x = 0; x < Ax; x++) {
 		
 			maxvals[x] = Number.MIN_VALUE;
 			minvals[x] = Number.MAX_VALUE;
 		}
 		
-		for (var y = 0; y < Ay; y++) {
-			for (var x = 0; x < Ax; x++) {
+		for (y = 0; y < Ay; y++) {
+			for (x = 0; x < Ax; x++) {
 				
 				maxvals[x] = Math.max(A[y][x], maxvals[x]);
 				minvals[x] = Math.min(A[y][x], minvals[x]);
 			}
 		}
 		
-		for (var y = 0; y < Ay; y++) {
-			for (var x = 0; x < Ax; x++) {
+		for (y = 0; y < Ay; y++) {
+			for (x = 0; x < Ax; x++) {
 				
 				var denum = maxvals[x] - minvals[x];
 				
@@ -796,13 +801,6 @@ class KernelFunction {
 	static Cols(x) {
 
 		return x[0].length;
-	}
-
-	static Vectorize(x1, x2) {
-
-		// Reshape into column vectors
-		x1 = Matrix.Vector(x1);
-		x2 = Matrix.Vector(x2);
 	}
 
 	static Multiply(x1, x2) {
@@ -1022,6 +1020,8 @@ class SupportVectorMachine {
 		this.b = 0;
 		this.Iterations = 0;
 
+		var i, j;
+
 		// Pre-compute the Kernel Matrix since our dataset is small
 		// (In practice, optimized SVM packages that handle large datasets
 		// gracefully will *not* do this)
@@ -1072,11 +1072,11 @@ class SupportVectorMachine {
 			var Xi = Matrix.Create(1, this.Cols(this.dx));
 			var Xj = Matrix.Create(1, this.Cols(this.dx));
 			
-			for (var i = 0; i < m; i++) {
+			for (i = 0; i < m; i++) {
 
 				Matrix.Copy2D(Xi, this.dx, 0, i);
 
-				for (var j = 0; j < m; j++) {
+				for (j = 0; j < m; j++) {
 
 					Matrix.Copy2D(Xj, this.dx, 0, j);
 
@@ -1093,7 +1093,7 @@ class SupportVectorMachine {
 		this.H = 0;
 
 		// Map 0 (or other categories) to -1
-		for (var i = 0; i < this.dy.length; i++) {
+		for (i = 0; i < this.dy.length; i++) {
 
 			this.dy[i] = parseInt(this.dy[i]) != this.Category ? -1 : 1;
 		}
@@ -1109,12 +1109,14 @@ class SupportVectorMachine {
 
 		var num_changed_alphas = 0;
 
-		for (var i = 0; i < m; i++) {
+		var i, yy;
+
+		for (i = 0; i < m; i++) {
 
 			// Calculate Ei = f(x(i)) - y(i) using (2).
 			this.E[i] = this.b;
 
-			for (var yy = 0; yy < m; yy++) {
+			for (yy = 0; yy < m; yy++) {
 
 				this.E[i] += this.alpha[yy] * this.dy[yy] * this.K[i][yy];
 			}
@@ -1136,7 +1138,7 @@ class SupportVectorMachine {
 				// Calculate Ej = f(x(j)) - y(j) using (2).
 				this.E[j] = this.b;
 
-				for (var yy = 0; yy < m; yy++) {
+				for (yy = 0; yy < m; yy++) {
 
 					this.E[j] += this.alpha[yy] * this.dy[yy] * this.K[j][yy];
 				}
@@ -1233,9 +1235,9 @@ class SupportVectorMachine {
 		var m = this.Rows(this.dx);
 		var n = this.Cols(this.dx);
 
-		var idx = 0;
+		var i, j, idx = 0;
 
-		for (var i = 0; i < m; i++) {
+		for (i = 0; i < m; i++) {
 
 			if (Math.abs(this.alpha[i]) > 0.0) {
 
@@ -1249,11 +1251,11 @@ class SupportVectorMachine {
 
 		var ii = 0;
 
-		for (var i = 0; i < m; i++) {
+		for (i = 0; i < m; i++) {
 
 			if (Math.abs(this.alpha[i]) > 0.0) {
 
-				for (var j = 0; j < n; j++) {
+				for (j = 0; j < n; j++) {
 
 					this.ModelX[ii][j] = this.dx[i][j];
 				}
@@ -1305,7 +1307,7 @@ class SupportVectorMachine {
 		this.Setup(x, y, c, kernel, param, tolerance, maxpasses, category);
 
 		// Train
-		while (!this.Step()) { }
+		while (!this.Step());
 
 		this.Generate();
 	}
