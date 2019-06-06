@@ -420,7 +420,7 @@ angular
 						MaxIterations += svms[i].MaxIterations;
 						Iterations += svms[i].Iterations;
 
-						if (result && !svms[i].Trained) {
+						if (result) {
 							
 							svms[i].Generate();
 						}
@@ -639,34 +639,31 @@ angular
 
 				var machine = $scope.Models[$scope.SelectedModel - 1];
 
-				if (machine.Trained) {
-					
-					var WW = [];
-			
-					for (var y = 0; y < machine.W.length; y++) {
+				var WW = [];
+		
+				for (var y = 0; y < machine.W.length; y++) {
 
-						WW.push(machine.W[y][0]);
-					}
-
-					var parameters = {
-						
-						ModelX: machine.ModelX,
-						ModelY: machine.ModelY,
-						Type: machine.Type,
-						KernelParam: machine.KernelParam,
-						W: WW,
-						B: machine.B,
-						C: machine.C,
-						Tolerance: machine.Tolerance,
-						Category: machine.Category,
-						Passes: machine.Iterations,
-						Iterations: machine.Iterations,
-						MaxIterations: machine.MaxIterations,
-						Trained: machine.Trained
-					};
-
-					$scope.modelParameters = $scope.PrettyPrint(parameters);
+					WW.push(machine.W[y][0]);
 				}
+
+				var parameters = {
+					
+					ModelX: machine.ModelX,
+					ModelY: machine.ModelY,
+					Type: machine.Type,
+					KernelParam: machine.KernelParam,
+					W: WW,
+					B: machine.B,
+					C: machine.C,
+					Tolerance: machine.Tolerance,
+					Category: machine.Category,
+					Passes: machine.Iterations,
+					Iterations: machine.Iterations,
+					MaxIterations: machine.MaxIterations,
+					Trained: machine.Trained
+				};
+
+				$scope.modelParameters = $scope.PrettyPrint(parameters);
 			}
 		}
 
@@ -1195,7 +1192,7 @@ angular
 				var prediction = Matrix.Create(mesh.length, 1);
 				Matrix.Set(prediction, -1); // set to negative example by default
 
-				var i, y, ClassifierProgress;
+				var i, y, ClassifierProgress, trainedModels = 0;
 
 				for (i = 0; i < models.length; i++) {
 
@@ -1203,6 +1200,8 @@ angular
 						continue;
 
 					if (models[i].Trained) {
+						
+						trainedModels++;
 
 						var machine = new SupportVectorMachine();
 						
@@ -1277,8 +1276,9 @@ angular
 				}
 
 				var lines = [];
-
-				Contour(lines, data, xplot, yplot, [-1.0, 0.0, 1.0], line);
+				
+				if (trainedModels > 0)
+					Contour(lines, data, xplot, yplot, [-1.0, 0.0, 1.0], line);
 
 				complete({lines: lines});
 			}
