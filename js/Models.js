@@ -1273,7 +1273,8 @@ class SupportVectorMachine {
 
 		this.W = Matrix.Transpose(txx);
 
-		this.Trained = true;
+		if (idx > 0)
+			this.Trained = true;
 	}
 
 	// SVMTRAIN Trains an SVM classifier using a simplified version of the SMO 
