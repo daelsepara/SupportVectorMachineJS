@@ -1,9 +1,9 @@
-angular.module('d3', []).factory('d3Service', [function(){ return d3; }]);
-  
+angular.module('d3', []).factory('d3Service', [function () { return d3; }]);
+
 angular
 	.module('DeepLearning', ['ngWebworker', 'ngFileSaver', 'd3'])
-	.controller('SupportVectorMachineController', ['$scope', 'Webworker', 'FileSaver', 'Blob', function($scope, Webworker, FileSaver, Blob) {
-		
+	.controller('SupportVectorMachineController', ['$scope', 'Webworker', 'FileSaver', 'Blob', function ($scope, Webworker, FileSaver, Blob) {
+
 		class ModelParameters {
 
 			constructor(id, type, parameters, regularization, passes, tolerance, category) {
@@ -40,7 +40,7 @@ angular
 		$scope.SelectedFile = {};
 		$scope.TestFile = {};
 		$scope.NetworkFile = {};
-		
+
 		$scope.TestData = [];
 		$scope.Samples = 0;
 
@@ -49,8 +49,8 @@ angular
 		$scope.delimiter = $scope.DelimiterNames[0];
 		$scope.SelectedDelimiter = 0;
 
-		$scope.KernelType = {Polynomial: 0, Gaussian: 1, Radial: 2, Sigmoid: 3, Linear: 4, Fourier: 5};
-		
+		$scope.KernelType = { Polynomial: 0, Gaussian: 1, Radial: 2, Sigmoid: 3, Linear: 4, Fourier: 5 };
+
 		$scope.KernelNames = ["Polynomial", "Gaussian", "Radial", "Sigmoid", "Linear", "Fourier"];
 		$scope.kernel = $scope.KernelNames[0];
 		$scope.SelectedKernel = 0;
@@ -71,39 +71,39 @@ angular
 		$scope.PlotWidth = 1024;
 		$scope.PlotHeight = 1024;
 		$scope.plotContours = false;
-		
-		$scope.SelectDelimiter = function() {
-			
+
+		$scope.SelectDelimiter = function () {
+
 			var i = $scope.DelimiterNames.indexOf($scope.delimiter);
-			
+
 			$scope.SelectedDelimiter = i + 1;
 		}
 
-		$scope.SelectKernel = function() {
-			
+		$scope.SelectKernel = function () {
+
 			var i = $scope.KernelNames.indexOf($scope.kernel);
-			
+
 			$scope.SelectedKernel = i;
 		}
 
-		$scope.ReadTrainingData = function() {
-			
+		$scope.ReadTrainingData = function () {
+
 			$scope.TrainingData = [];
 			$scope.Output = [];
 			$scope.Items = 0;
 			$scope.Categories = 0;
 			$scope.Inputs = 0;
-			
+
 			var reader = new FileReader();
 
-			reader.onload = function(event) {
+			reader.onload = function (event) {
 
-				$scope.$apply(function() {
-					
+				$scope.$apply(function () {
+
 					var lines = reader.result.split('\n');
-					
+
 					var delimiter = $scope.SelectedDelimiter > 0 ? $scope.Delimiters[$scope.SelectedDelimiter - 1] : "\t";
-					
+
 					for (var line = 0; line < lines.length; line++) {
 
 						var tmp = [];
@@ -111,60 +111,60 @@ angular
 						var tokens = lines[line].trim().split(delimiter);
 
 						if (tokens.length > 0) {
-							
+
 							if (line == 0 && tokens.length > 1) {
-								
+
 								$scope.Inputs = tokens.length - 1;
 							}
-							
+
 							if (tokens.length > 1) {
-								
+
 								var item = parseInt(tokens[tokens.length - 1]);
-								
+
 								$scope.Categories = Math.max($scope.Categories, item);
-								
+
 								$scope.Output.push([item]);
 							}
-								
+
 							for (var i = 0; i < tokens.length - 1; i++) {
-								
+
 								tmp.push(parseFloat(tokens[i]));
 							}
-							
+
 							if (tmp.length > 0) {
-								
+
 								$scope.TrainingData.push(tmp);
-								
+
 								$scope.Items++;
 							}
 						}
 					}
-					
+
 					$scope.fileContent = reader.result.trim();
 				});
 			}
 
 			if ($scope.SelectedFile.name != undefined) {
-				
+
 				reader.readAsText($scope.SelectedFile);
 			}
 		}
 
-		$scope.ReadTestData = function() {
-			
+		$scope.ReadTestData = function () {
+
 			$scope.TestData = [];
 			$scope.Samples = 0;
-			
+
 			var reader = new FileReader();
 
-			reader.onload = function(progressEvent) {
+			reader.onload = function (progressEvent) {
 
-				$scope.$apply(function() {
-					
+				$scope.$apply(function () {
+
 					var lines = reader.result.split('\n');
-					
+
 					var delimiter = $scope.SelectedDelimiter > 0 ? $scope.Delimiters[$scope.SelectedDelimiter - 1] : "\t";
-					
+
 					for (var line = 0; line < lines.length; line++) {
 
 						var tmp = [];
@@ -172,44 +172,44 @@ angular
 						var tokens = lines[line].trim().split(delimiter);
 
 						if (tokens.length >= $scope.Inputs) {
-							
+
 							for (var i = 0; i < tokens.length; i++) {
-								
+
 								if (i >= 0 && i < $scope.Inputs)
 									tmp.push(parseFloat(tokens[i]));
 							}
-							
+
 							if (tmp.length > 0) {
-								
+
 								$scope.TestData.push(tmp);
-								
+
 								$scope.Samples++;
 							}
 						}
 					}
-					
+
 					$scope.testContent = reader.result.trim();
-					
+
 				});
 			}
 
 			if ($scope.TestFile.name != undefined) {
-				
+
 				reader.readAsText($scope.TestFile);
 			}
 		}
 
 		// re-number index numbers (after deletion)
-		$scope.RenumberModels = function() {
+		$scope.RenumberModels = function () {
 
 			for (var i = 0; i < $scope.Models.length; i++) {
-					
+
 				$scope.Models[i].index = i + 1;
 			}
 		}
 
 		// add model
-		$scope.AddModel = function() {
+		$scope.AddModel = function () {
 
 			if ($scope.category != 0) {
 
@@ -223,7 +223,7 @@ angular
 					if ($scope.SelectedKernel == $scope.KernelType.Polynomial) {
 
 						model = new ModelParameters($scope.Models.length + 1, $scope.KernelType.Polynomial, [$scope.bias, $scope.exponent], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
-					
+
 					} else if ($scope.SelectedKernel == $scope.KernelType.Gaussian || $scope.SelectedKernel == $scope.KernelType.Radial) {
 
 						model = new ModelParameters($scope.Models.length + 1, $scope.SelectedKernel == $scope.KernelType.Gaussian ? $scope.KernelType.Gaussian : $scope.KernelType.Radial, [$scope.sigma], $scope.regularization, $scope.passes, $scope.tolerance, $scope.category);
@@ -238,7 +238,7 @@ angular
 					}
 
 					if (model != undefined) {
-						
+
 						$scope.Models.push(model);
 					}
 				}
@@ -246,7 +246,7 @@ angular
 		}
 
 		// copy model parameters
-		$scope.SelectModel = function() {
+		$scope.SelectModel = function () {
 
 			if ($scope.SelectedModel > 0 && $scope.SelectedModel <= $scope.Models.length) {
 
@@ -256,40 +256,40 @@ angular
 				$scope.SelectedKernel = current.Type;
 
 				if (current.Type == $scope.KernelType.Polynomial) {
-				
+
 					$scope.bias = current.KernelParam[0];
 					$scope.exponent = current.KernelParam[1];
-				
+
 				} else if (current.Type == $scope.KernelType.Gaussian || current.Type == $scope.KernelType.Radial) {
 
 					$scope.sigma = current.KernelParam[0];
 
 				} else if (current.Type == $scope.KernelType.Sigmoid || current.Type == $scope.KernelType.Linear) {
-				
+
 					$scope.slope = current.KernelParam[0];
 					$scope.intercept = current.KernelParam[1];
 
 				} else if (current.Type == $scope.KernelType.Fourier) {
-				
+
 					$scope.scalingFactor = current.KernelParam[0];
 				}
 
 				$scope.passes = current.MaxIterations;
 				$scope.regularization = current.C;
-				$scope.tolerance = current.Tolerance; 				
+				$scope.tolerance = current.Tolerance;
 				$scope.category = current.Category;
 			}
 		}
 
 		// remove model from list
-		$scope.RemoveModel = function() {
+		$scope.RemoveModel = function () {
 
 			if ($scope.SelectedModel > 0 && $scope.SelectedModel <= $scope.Models.length) {
 
 				for (var i = 0; i < $scope.Models.length; i++) {
-					
+
 					if ($scope.Models[i].index == $scope.SelectedModel) {
-						
+
 						$scope.Models.splice(i, 1);
 
 						break;
@@ -302,7 +302,7 @@ angular
 			}
 		}
 
-		$scope.UpdateModel = function() {
+		$scope.UpdateModel = function () {
 
 			var current = $scope.SelectedModel - 1;
 
@@ -313,7 +313,7 @@ angular
 				if ($scope.SelectedKernel == $scope.KernelType.Polynomial) {
 
 					$scope.Models[current].KernelParam = [$scope.bias, $scope.exponent];
-				
+
 				} else if ($scope.SelectedKernel == $scope.KernelType.Gaussian || $scope.SelectedKernel == $scope.KernelType.Radial) {
 
 					$scope.Models[current].KernelParam = [$scope.sigma];
@@ -329,62 +329,62 @@ angular
 
 				$scope.Models[current].MaxIterations = $scope.passes;
 				$scope.Models[current].C = $scope.regularization;
-				$scope.Models[current].Tolerance = $scope.tolerance; 				
+				$scope.Models[current].Tolerance = $scope.tolerance;
 				$scope.Models[current].Category = $scope.category;
 			}
 		}
 
-		$scope.StopAsyncTrainer = function() {
+		$scope.StopAsyncTrainer = function () {
 
 			if ($scope.asyncTrainer) {
-				
+
 				try {
-					
+
 					$scope.asyncTrainer.terminate();
-		
-					$scope.asyncTrainer  = null;
-					
-					$scope.Training = false;
-					
-					$scope.TrainingProgress = 0.0;
-					
-				} catch (err) {
-					
+
 					$scope.asyncTrainer = null;
-					
+
 					$scope.Training = false;
-					
+
+					$scope.TrainingProgress = 0.0;
+
+				} catch (err) {
+
+					$scope.asyncTrainer = null;
+
+					$scope.Training = false;
+
 					$scope.TrainingProgress = 0.0;
 				}
 			}
 		}
-		
-		$scope.StopAsyncClassifier = function() {
+
+		$scope.StopAsyncClassifier = function () {
 
 			if ($scope.asyncClassifier) {
-				
+
 				try {
-					
+
 					$scope.asyncClassifier.terminate();
-		
-					$scope.asyncClassifier  = null;
-					
-					$scope.ClassifierProgress = 0.0;
-					
-				} catch (err) {
-					
+
 					$scope.asyncClassifier = null;
-					
+
+					$scope.ClassifierProgress = 0.0;
+
+				} catch (err) {
+
+					$scope.asyncClassifier = null;
+
 					$scope.ClassifierProgress = 0.0;
 				}
 			}
 		}
 
-		$scope.AsyncTrainer = function() {
+		$scope.AsyncTrainer = function () {
 
 			// function that will become a worker
 			function async(currentPath, input, output, models) {
-			
+
 				importScripts(currentPath + "js/Models.js");
 
 				var svms = [];
@@ -394,9 +394,9 @@ angular
 				var normalization = [resultNormalization.min, resultNormalization.max];
 
 				for (i = 0; i < models.length; i++) {
-					
-					var model = models[i]; 
-					
+
+					var model = models[i];
+
 					var machine = new SupportVectorMachine();
 
 					machine.Setup(input, output, model.C, model.Type, model.KernelParam, model.Tolerance, model.MaxIterations, model.Category);
@@ -407,7 +407,7 @@ angular
 				var done = svms.length > 0 ? false : true;
 
 				while (!done) {
-					
+
 					done = true;
 
 					var MaxIterations = 0;
@@ -421,36 +421,36 @@ angular
 						Iterations += svms[i].Iterations;
 
 						if (result) {
-							
+
 							svms[i].Generate();
 						}
 
 						done &= result;
 					}
 
-					notify({Iterations: Iterations, MaxIterations: MaxIterations});
+					notify({ Iterations: Iterations, MaxIterations: MaxIterations });
 				}
 
 				for (i = 0; i < svms.length; i++) {
 
 					svms[i].index = i + 1;
 				}
-				
-				complete({models: svms, normalization: normalization});
+
+				complete({ models: svms, normalization: normalization });
 			}
 
 			if (!$scope.Training && $scope.Models.length > 0 && $scope.TrainingData.length > 0 && $scope.Output.length > 0) {
-					
+
 				var currentPath = document.URL;
-				
+
 				$scope.Training = true;
-				
+
 				// mark this worker as one that supports async notifications
 				$scope.asyncTrainer = Webworker.create(async, { async: true });
 
 				// uses the native $q style notification: https://docs.angularjs.org/api/ng/service/$q
-				$scope.asyncTrainer.run(currentPath, $scope.TrainingData, $scope.Output, $scope.Models).then(function(result) {
-					
+				$scope.asyncTrainer.run(currentPath, $scope.TrainingData, $scope.Output, $scope.Models).then(function (result) {
+
 					// promise is resolved.
 
 					$scope.Models = result.models;
@@ -459,21 +459,21 @@ angular
 					$scope.Training = false;
 					$scope.SelectedModel = 0;
 
-				}, null, function(result) {
-					
+				}, null, function (result) {
+
 					// promise has a notification
 
 					$scope.TrainingProgress = result.Iterations / result.MaxIterations;
-					
-				}).catch(function(oError) {
-					
+
+				}).catch(function (oError) {
+
 					$scope.asyncTrainer = null;
 				});
 			}
 		}
 
-		$scope.AsyncClassifier = function() {
-			
+		$scope.AsyncClassifier = function () {
+
 			// function that will become a worker
 			function async(currentPath, input, models, selected, threshold) {
 
@@ -494,7 +494,7 @@ angular
 					if (models[current].Trained) {
 
 						machine = new SupportVectorMachine();
-						
+
 						machine.Initialize(
 							models[current].ModelX,
 							models[current].ModelY,
@@ -507,7 +507,7 @@ angular
 							models[current].C,
 							models[current].Category
 						);
-						
+
 						for (item = 0; item < input.length; item += 100) {
 
 							p = machine.Predict(input.slice(item, item + 100));
@@ -522,9 +522,9 @@ angular
 								}
 							}
 
-							ClassifierProgress = item/input.length;
-							
-							notify({ClassifierProgress: ClassifierProgress});
+							ClassifierProgress = item / input.length;
+
+							notify({ ClassifierProgress: ClassifierProgress });
 						}
 					}
 
@@ -535,7 +535,7 @@ angular
 						if (models[i].Trained) {
 
 							machine = new SupportVectorMachine();
-							
+
 							machine.Initialize(
 								models[i].ModelX,
 								models[i].ModelY,
@@ -548,7 +548,7 @@ angular
 								models[i].C,
 								models[i].Category
 							);
-							
+
 							for (item = 0; item < input.length; item += 100) {
 
 								p = machine.Predict(input.slice(item, item + 100));
@@ -563,91 +563,91 @@ angular
 									}
 								}
 
-								ClassifierProgress = (i * input.length + item)/(models.length * input.length);
-								
-								notify({ClassifierProgress: ClassifierProgress});
+								ClassifierProgress = (i * input.length + item) / (models.length * input.length);
+
+								notify({ ClassifierProgress: ClassifierProgress });
 							}
 						}
 					}
 				}
-				
-				complete({classification: classification, prediction: prediction});
+
+				complete({ classification: classification, prediction: prediction });
 			}
 
 			if (!$scope.Training && $scope.Samples > 0 && $scope.Inputs > 0 && $scope.TestData.length > 0 && $scope.Models != undefined) {
-				
+
 				$scope.ClassifierProgress = 0.0;
 
 				var currentPath = document.URL;
-				
+
 				// mark this worker as one that supports async notifications
 				$scope.asyncClassifier = Webworker.create(async, { async: true });
 
 				// uses the native $q style notification: https://docs.angularjs.org/api/ng/service/$q
-				$scope.asyncClassifier.run(currentPath, $scope.TestData, $scope.Models, $scope.SelectedModel, $scope.Threshold).then(function(result) {
-					
+				$scope.asyncClassifier.run(currentPath, $scope.TestData, $scope.Models, $scope.SelectedModel, $scope.Threshold).then(function (result) {
+
 					// promise is resolved
 
 					$scope.classificationResult = '';
-					
+
 					if (result.classification != undefined) {
-						
+
 						$scope.Classification = result.classification;
-						
-						for(var i = 0; i < $scope.Classification.length; i++) {
-							
+
+						for (var i = 0; i < $scope.Classification.length; i++) {
+
 							if (i > 0) {
-								
+
 								$scope.classificationResult += '\n';
 							}
-							
+
 							$scope.classificationResult += $scope.Classification[i][0].toString();
 						}
 					}
-					
+
 					if (result.prediction != undefined) {
-						
+
 						$scope.Prediction = result.prediction;
 					}
-					
+
 					$scope.ClassifierProgress = 1.0;
 
 					d3.select("#plot").selectAll("*").remove();
 
-				}, null, function(progress) {
+				}, null, function (progress) {
 
 					$scope.ClassifierProgress = progress.ClassifierProgress;
-					
-				}).catch(function(oError) {
-					
+
+				}).catch(function (oError) {
+
 					$scope.asyncClassifier = null;
-					
+
 				});
 			}
 		}
 
 		// https://stackoverflow.com/questions/26320525/prettify-json-data-in-textarea-input/26324037
-		$scope.PrettyPrint = function(json) {
-	
+		$scope.PrettyPrint = function (json) {
+
 			return JSON.stringify(json, undefined, 4);
 		}
-		
+
 		// copy model parameters
-		$scope.DisplayModelParameters = function() {
+		$scope.DisplayModelParameters = function () {
 
 			if ($scope.SelectedModel > 0 && $scope.SelectedModel <= $scope.Models.length) {
 
 				var machine = $scope.Models[$scope.SelectedModel - 1];
 
 				var WW = [];
-		
+
 				for (var y = 0; y < machine.W.length; y++) {
 
 					WW.push(machine.W[y][0]);
 				}
 
 				var parameters = {
-					
+
 					ModelX: machine.ModelX,
 					ModelY: machine.ModelY,
 					Type: machine.Type,
@@ -667,22 +667,22 @@ angular
 			}
 		}
 
-		$scope.SaveModels = function() {
-			
+		$scope.SaveModels = function () {
+
 			if ($scope.Models != undefined && $scope.Normalization.length > 1) {
-				
+
 				var models = [];
 
 				for (var i = 0; i < $scope.Models.length; i++) {
-					
+
 					var machine = $scope.Models[i];
 
 					if (machine.Trained) {
-						
+
 						var WW = [];
-						
+
 						for (var y = 0; y < machine.W.length; y++) {
-							
+
 							WW.push(machine.W[y][0]);
 						}
 
@@ -709,18 +709,18 @@ angular
 
 				var json = { Models: models, Normalization: $scope.Normalization };
 				var jsonString = JSON.stringify(json);
-				
+
 				var blob = new Blob([jsonString], {
-					
+
 					type: "application/json"
-					
+
 				});
-				
+
 				FileSaver.saveAs(blob, "Models.json");
 			}
 		}
 
-		$scope.LoadSVM = function() {
+		$scope.LoadSVM = function () {
 
 			$scope.Models = [];
 			$scope.Inputs = 0;
@@ -729,17 +729,17 @@ angular
 
 			var reader = new FileReader();
 
-			reader.onload = function(progressEvent) {
+			reader.onload = function (progressEvent) {
 
-				$scope.$apply(function() {
-					
+				$scope.$apply(function () {
+
 					var json = JSON.parse(reader.result);
-					
+
 					if (json.Models != undefined && json.Normalization != undefined) {
-						
+
 						$scope.Normalization = json.Normalization;
 						$scope.Inputs = json.Models[0].ModelX[0].length;
-						
+
 						for (var i = 0; i < json.Models.length; i++) {
 
 							var machine = json.Models[i];
@@ -747,14 +747,14 @@ angular
 							var WW = [];
 
 							$scope.Categories = Math.max($scope.Categories, machine.Category);
-							
+
 							for (var y = 0; y < machine.W.length; y++) {
-						
+
 								WW.push([machine.W[y]]);
 							}
 
 							var parameters = {
-								
+
 								index: i + 1,
 								ModelX: machine.ModelX,
 								ModelY: machine.ModelY,
@@ -779,13 +779,13 @@ angular
 			}
 
 			if ($scope.NetworkFile.name != undefined) {
-				
+
 				reader.readAsText($scope.NetworkFile);
 			}
 		}
 
-		$scope.RenderTestData = function() {
-			
+		$scope.RenderTestData = function () {
+
 			// modified scatter plot example - https://bl.ocks.org/aleereza/d2be3d62a09360a770b79f4e5527eea8
 			var width = $scope.PlotWidth, height = $scope.PlotHeight;
 
@@ -799,7 +799,7 @@ angular
 			var xScale = d3.scaleLinear()
 				.domain([0, 200])
 				.range([0.1 * width, 0.8 * width]);
-			
+
 			var yScale = d3.scaleLinear()
 				.domain([0, 200])
 				.range([0.8 * height, 0.1 * height]);
@@ -807,31 +807,31 @@ angular
 			var color = d3.scaleOrdinal().domain([0, d3.schemeCategory10.length - 1]).range(d3.schemeCategory10);
 
 			function generatePointsData(test, classification) {
-					
+
 				var data = [];
 				var n = test.length;
-				
+
 				var minx = Number.MAX_VALUE;
 				var maxx = Number.MIN_VALUE;
-	
+
 				var miny = Number.MAX_VALUE;
 				var maxy = Number.MIN_VALUE;
-				
+
 				var f1 = 0;
 				var f2 = 1;
-	
+
 				for (var i = 0; i < n; i++) {
 
 					minx = Math.min(test[i][f1], minx);
 					maxx = Math.max(test[i][f1], maxx);
-	
+
 					miny = Math.min(test[i][f2], miny);
 					maxy = Math.max(test[i][f2], maxy);
 				}
 
 				var deltax = (maxx - minx) / 200;
 				var deltay = (maxy - miny) / 200;
-				
+
 				minx = minx - 8 * deltax;
 				maxx = maxx + 8 * deltax;
 				miny = miny - 8 * deltay;
@@ -843,11 +843,11 @@ angular
 				for (i = 0; i < n; i++) {
 
 					var dataPoint = {};
-					
+
 					dataPoint["x"] = (test[i][f1] - minx) / deltax;
-					dataPoint["y"] = (test[i][f2] - miny) / deltay;						
+					dataPoint["y"] = (test[i][f2] - miny) / deltay;
 					dataPoint["color"] = classification[i];
-					
+
 					data.push(dataPoint);
 				}
 
@@ -881,33 +881,33 @@ angular
 				function generateMesh(x, width, height) {
 
 					var m = x.length;
-					
+
 					var xplot = new Array(width);
 					var yplot = new Array(height);
 
 					var minx = Number.MAX_VALUE;
 					var maxx = Number.MIN_VALUE;
-		
+
 					var miny = Number.MAX_VALUE;
 					var maxy = Number.MIN_VALUE;
-					
+
 					var f1 = 0;
 					var f2 = 1;
-					
+
 					var i, j;
 
 					for (i = 0; i < m; i++) {
 
 						minx = Math.min(x[i][f1], minx);
 						maxx = Math.max(x[i][f1], maxx);
-		
+
 						miny = Math.min(x[i][f2], miny);
 						maxy = Math.max(x[i][f2], maxy);
 					}
-		
+
 					var deltax = (maxx - minx) / width;
 					var deltay = (maxy - miny) / height;
-					
+
 					minx = minx - 8 * deltax;
 					maxx = maxx + 8 * deltax;
 					miny = miny - 8 * deltay;
@@ -915,30 +915,30 @@ angular
 
 					deltax = (maxx - minx) / width;
 					deltay = (maxy - miny) / height;
-		
+
 					for (j = 0; j < width; j++) {
 
 						xplot[j] = minx + j * deltax;
 					}
-		
+
 					for (i = 0; i < height; i++) {
 
 						yplot[i] = miny + i * deltay;
 					}
-		
+
 					var xx = [];
-		
+
 					for (i = 0; i < height; i++) {
 
 						for (j = 0; j < width; j++) {
-							
+
 							xx.push([xplot[j], yplot[i]]);
 						}
 					}
 
-					return {mesh: xx, xplot: xplot, yplot: yplot, minx: minx, miny: miny, deltax: deltax, deltay: deltay};
+					return { mesh: xx, xplot: xplot, yplot: yplot, minx: minx, miny: miny, deltax: deltax, deltay: deltay };
 				}
-				
+
 				// see: https://www.dashingd3js.com/svg-basic-shapes-and-d3js
 				/// <summary>
 				/// Renderer delegate
@@ -951,7 +951,7 @@ angular
 				/// <param name="z">Contour level</param>
 				function line(graph, x1, y1, x2, y2, z) {
 
-					graph.push({x1: x1, y1: y1, x2: x2, y2: y2, z: z});
+					graph.push({ x1: x1, y1: y1, x2: x2, y2: y2, z: z });
 				}
 
 				/// <summary>
@@ -974,40 +974,40 @@ angular
 				///
 				/// Converted to JavaScript by sdsepara (2019)
 				function Contour(graph, d, x, y, z, renderer) {
-					
+
 					var minColor = Math.abs(Math.min.apply(null, z));
 					var x1 = 0;
 					var x2 = 0;
 					var y1 = 0;
 					var y2 = 0;
-		
+
 					var h = new Array(5);
 					var sh = new Array(5);
 					var xh = new Array(5);
 					var yh = new Array(5);
-		
+
 					var ilb = 0;
 					var iub = d.length - 1;
 					var jlb = 0;
 					var jub = d[0].length - 1;
 					var nc = z.length;
-		
+
 					// The indexing of im and jm should be noted as it has to start from zero
 					// unlike the fortran counter part
-					var im = [ 0, 1, 1, 0 ];
-					var jm = [ 0, 0, 1, 1 ];
-		
+					var im = [0, 1, 1, 0];
+					var jm = [0, 0, 1, 1];
+
 					// Note that castab is arranged differently from the FORTRAN code because
 					// Fortran and C/C++ arrays are transposed of each other, in this case
 					// it is more tricky as castab is in 3 dimension
 					var castab = [
-						[ [ 0, 0, 8 ], [ 0, 2, 5 ], [ 7, 6, 9 ] ], [ [ 0, 3, 4 ], [ 1, 3, 1 ], [ 4, 3, 0 ] ],
-						[ [ 9, 6, 7 ], [ 5, 2, 0 ], [ 8, 0, 0 ] ]
+						[[0, 0, 8], [0, 2, 5], [7, 6, 9]], [[0, 3, 4], [1, 3, 1], [4, 3, 0]],
+						[[9, 6, 7], [5, 2, 0], [8, 0, 0]]
 					];
 
-					var xsect = function(p1, p2) { return ((h[p2] * xh[p1]) - (h[p1] * xh[p2])) / (h[p2] - h[p1]); };
-					var ysect = function(p1, p2) { return ((h[p2] * yh[p1]) - (h[p1] * yh[p2])) / (h[p2] - h[p1]); };
-		
+					var xsect = function (p1, p2) { return ((h[p2] * xh[p1]) - (h[p1] * xh[p2])) / (h[p2] - h[p1]); };
+					var ysect = function (p1, p2) { return ((h[p2] * yh[p1]) - (h[p1] * yh[p2])) / (h[p2] - h[p1]); };
+
 					for (var j = jub - 1; j >= jlb; j--) {
 
 						for (var i = ilb; i <= iub - 1; i++) {
@@ -1015,13 +1015,13 @@ angular
 							var temp1 = Math.min(d[i][j], d[i][j + 1]);
 							var temp2 = Math.min(d[i + 1][j], d[i + 1][j + 1]);
 							var dmin = Math.min(temp1, temp2);
-							
+
 							temp1 = Math.max(d[i][j], d[i][j + 1]);
 							temp2 = Math.max(d[i + 1][j], d[i + 1][j + 1]);
 							var dmax = Math.max(temp1, temp2);
-		
+
 							if (dmax >= z[0] && dmin <= z[nc - 1]) {
-								
+
 								var k;
 
 								for (k = 0; k < nc; k++) {
@@ -1029,7 +1029,7 @@ angular
 									if (z[k] >= dmin && z[k] <= dmax) {
 
 										var m;
-										
+
 										for (m = 4; m >= 0; m--) {
 
 											if (m > 0) {
@@ -1046,21 +1046,21 @@ angular
 												xh[0] = 0.5 * (x[i] + x[i + 1]);
 												yh[0] = 0.5 * (y[j] + y[j + 1]);
 											}
-		
+
 											if (h[m] > 0) {
-												
+
 												sh[m] = 1;
 
 											} else if (h[m] < 0) {
 
 												sh[m] = -1;
-											
+
 											} else {
 
 												sh[m] = 0;
 											}
 										}
-		
+
 										//// Note: at this stage the relative heights of the corners and the
 										//// centre are in the h array, and the corresponding coordinates are
 										//// in the xh and yh arrays. The centre of the box is indexed by 0
@@ -1084,25 +1084,25 @@ angular
 										////          |   /    m=1    \   |
 										////          | /               \ |
 										//// vertex 1 +-------------------+ vertex 2
-		
+
 										// Scan each triangle in the box
 										for (m = 1; m <= 4; m++) {
 
 											var m1 = m;
 											var m2 = 0;
 											var m3;
-											
+
 											if (m != 4) {
 
 												m3 = m + 1;
-											
+
 											} else {
 
 												m3 = 1;
 											}
-		
+
 											var caseValue = castab[sh[m1] + 1][sh[m2] + 1][sh[m3] + 1];
-		
+
 											if (caseValue != 0) {
 
 												switch (caseValue) {
@@ -1162,7 +1162,7 @@ angular
 														y2 = ysect(m1, m2);
 														break;
 												}
-		
+
 												renderer(graph, y1, x1, y2, x2, minColor + z[k]);
 											}
 										}
@@ -1170,9 +1170,9 @@ angular
 								}
 							}
 
-							var ClassifierProgress = 0.5 + 0.5 * (((jub - j - 1) * (iub + 1) + i) / ((jub + 1) * (iub + 1))); 
+							var ClassifierProgress = 0.5 + 0.5 * (((jub - j - 1) * (iub + 1) + i) / ((jub + 1) * (iub + 1)));
 
-							notify({ClassifierProgress: ClassifierProgress});
+							notify({ ClassifierProgress: ClassifierProgress });
 						}
 					}
 				}
@@ -1200,11 +1200,11 @@ angular
 						continue;
 
 					if (models[i].Trained) {
-						
+
 						trainedModels++;
 
 						var machine = new SupportVectorMachine();
-						
+
 						machine.Initialize(
 							models[i].ModelX,
 							models[i].ModelY,
@@ -1217,19 +1217,19 @@ angular
 							models[i].C,
 							models[i].Category
 						);
-						
+
 						for (var item = 0; item < mesh.length; item += 100) {
 
 							var p = machine.Predict(mesh.slice(item, item + 100));
 
 							for (y = 0; y < p.length; y++) {
-								
+
 								if (selected != 0 && (selected - 1) == i) {
-									
+
 									prediction[item + y][0] = p[y][0];
 
 								} else {
-								
+
 									if (p[y][0] > prediction[item + y][0]) {
 
 										prediction[item + y][0] = p[y][0];
@@ -1237,21 +1237,21 @@ angular
 								}
 							}
 
-							ClassifierProgress = (i * mesh.length + item)/(models.length * mesh.length) * 0.25;
-							
-							notify({ClassifierProgress: ClassifierProgress});
+							ClassifierProgress = (i * mesh.length + item) / (models.length * mesh.length) * 0.25;
+
+							notify({ ClassifierProgress: ClassifierProgress });
 						}
 					}
 				}
 
 				var ii = 0;
-						
+
 				var data = new Array(yplot.length);
 
 				for (y = 0; y < yplot.length; y++) {
-					
-					data[y] = new Array(xplot.length)								
-					
+
+					data[y] = new Array(xplot.length)
+
 					yplot[y] = (yplot[y] - miny) / deltay;
 
 					for (var x = 0; x < xplot.length; x++) {
@@ -1260,42 +1260,42 @@ angular
 
 							xplot[x] = (xplot[x] - minx) / deltax;
 						}
-						
+
 						if (ii >= 0 && ii < prediction.length) {
 
 							data[y][x] = prediction[ii];
 
-							ClassifierProgress = 0.25 + (ii / prediction.length) * 0.25; 
+							ClassifierProgress = 0.25 + (ii / prediction.length) * 0.25;
 
-							notify({ClassifierProgress: ClassifierProgress});
+							notify({ ClassifierProgress: ClassifierProgress });
 						}
-							
-						ii ++;
+
+						ii++;
 
 					}
 				}
 
 				var lines = [];
-				
+
 				if (trainedModels > 0)
 					Contour(lines, data, xplot, yplot, [-1.0, 0.0, 1.0], line);
 
-				complete({lines: lines});
+				complete({ lines: lines });
 			}
 
-			if ($scope.TestData.length > 0 && $scope.Classification.length > 0 && $scope.Classification.length ==  $scope.TestData.length) {
-				
+			if ($scope.TestData.length > 0 && $scope.Classification.length > 0 && $scope.Classification.length == $scope.TestData.length) {
+
 				// draw data points
 				var points_g = svg.append("g")
 					.classed("points_g", true);
-				
+
 				var data = generatePointsData($scope.TestData, $scope.Classification);
-				
+
 				points_g.selectAll("circle").data(data).enter().append("circle")
-					.attr('cx', function(d) {return xScale(d.x)})
-					.attr('cy', function(d) {return yScale(d.y)})
+					.attr('cx', function (d) { return xScale(d.x) })
+					.attr('cy', function (d) { return yScale(d.y) })
 					.attr('r', 5)
-					.style("fill", function(d) { return color(parseInt(d.color))});
+					.style("fill", function (d) { return color(parseInt(d.color)) });
 
 				// draw boundaries
 				svg.append("line").attr("x1", 0.1 * width).attr("y1", 0.1 * height).attr("x2", 0.8 * width).attr("y2", 0.1 * height).attr("stroke-width", 1.0).attr("stroke", "#000000");
@@ -1304,79 +1304,79 @@ angular
 				svg.append("line").attr("x1", 0.8 * width).attr("y1", 0.1 * height).attr("x2", 0.8 * width).attr("y2", 0.8 * height).attr("stroke-width", 1.0).attr("stroke", "#000000");
 
 				if (!$scope.Training && $scope.TestData.length > 0 && $scope.Models != undefined && $scope.plotContours) {
-				
+
 					$scope.ClassifierProgress = 0.0;
 
 					var currentPath = document.URL;
-					
+
 					// mark this worker as one that supports async notifications
 					$scope.asyncPlotter = Webworker.create(async, { async: true });
-				
+
 					// uses the native $q style notification: https://docs.angularjs.org/api/ng/service/$q
-					$scope.asyncPlotter.run(currentPath, $scope.TestData, $scope.Models, $scope.SelectedModel).then(function(result) {
-						
+					$scope.asyncPlotter.run(currentPath, $scope.TestData, $scope.Models, $scope.SelectedModel).then(function (result) {
+
 						$scope.ClassifierProgress = 1.0;
 
 						// promise is resolved
 						if (result.lines != undefined) {
-							
+
 							var contourLines = result.lines;
 
 							ContourLines(svg, contourLines);
 						}
-						
-					}, null, function(progress) {
-						
+
+					}, null, function (progress) {
+
 						$scope.ClassifierProgress = progress.ClassifierProgress;
 
-					}).catch(function(oError) {
-						
+					}).catch(function (oError) {
+
 						$scope.asyncPlotter = null;
-						
+
 					});
 				}
 			}
 		}
-		
-		$scope.SaveRenderedData = function() {
-			
+
+		$scope.SaveRenderedData = function () {
+
 			var svg = $("#plot")[0].innerHTML;
-			
+
 			if (svg != undefined) {
-			
+
 				svg = "<svg>" + svg + "</svg>";
-				
+
 				// add name spaces
 
-				if(!svg.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
-					
+				if (!svg.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+
 					svg = svg.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
 				}
-			
-				if(!svg.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)) {
-					
+
+				if (!svg.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)) {
+
 					svg = svg.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="' + $scope.PlotWidth.toString() + 'px" height="' + $scope.PlotHeight.toString() + 'px"');
 				}
 
 				var blob = new Blob([svg], {
-					
+
 					type: "image/svg+xml;charset=utf-8"
-					
+
 				});
-				
+
 				FileSaver.saveAs(blob, "Classification.svg");
 			}
 		}
 
-	}]).directive("inputBind", function() {
-		
-		return function(scope, elm, attrs) {
-			
-			elm.bind("change", function(evt) {
-				
-				scope.$apply(function(scope) {
-					
-					scope[ attrs.name ] = evt.target.files;
+	}]).directive("inputBind", function () {
+
+		return function (scope, elm, attrs) {
+
+			elm.bind("change", function (evt) {
+
+				scope.$apply(function (scope) {
+
+					scope[attrs.name] = evt.target.files;
 					scope['Items'] = 0;
 					scope['Categories'] = 0;
 					scope['Inputs'] = 0;
@@ -1384,31 +1384,31 @@ angular
 				});
 			});
 		};
-		
-	}).directive("testBind", function() {
-		
-		return function(scope, elm, attrs) {
-			
-			elm.bind("change", function(evt) {
-				
-				scope.$apply(function(scope) {
-					
-					scope[ attrs.name ] = evt.target.files;
+
+	}).directive("testBind", function () {
+
+		return function (scope, elm, attrs) {
+
+			elm.bind("change", function (evt) {
+
+				scope.$apply(function (scope) {
+
+					scope[attrs.name] = evt.target.files;
 					scope['Samples'] = 0;
 					scope['TestFile'] = evt.target.files[0];
 				});
 			});
 		};
 
-	}).directive("networkBind", function() {
-		
-		return function( scope, elm, attrs ) {
-			
-			elm.bind("change", function( evt ) {
-				
-				scope.$apply(function( scope ) {
-					
-					scope[ attrs.name ] = evt.target.files;
+	}).directive("networkBind", function () {
+
+		return function (scope, elm, attrs) {
+
+			elm.bind("change", function (evt) {
+
+				scope.$apply(function (scope) {
+
+					scope[attrs.name] = evt.target.files;
 					scope['NetworkFile'] = evt.target.files[0];
 				});
 			});

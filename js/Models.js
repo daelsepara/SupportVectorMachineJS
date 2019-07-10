@@ -1,62 +1,62 @@
 // static class methods for matrix operations
 class Matrix {
-	
+
 	// https://stackoverflow.com/questions/966225/how-can-i-create-a-two-dimensional-array-in-javascript
 	static Create(length) {
-		
+
 		var arr = new Array(length || 0);
 		var i = length;
 
 		if (arguments.length > 1) {
-			
+
 			var args = Array.prototype.slice.call(arguments, 1);
-			
-			while(i--)
-				arr[length-1 - i] = this.Create.apply(this, args);
+
+			while (i--)
+				arr[length - 1 - i] = this.Create.apply(this, args);
 		}
 
 		return arr;
 	}
-	
+
 	// see: https://blog.andrewray.me/how-to-clone-a-nested-array-in-javascript/
 	static Clone(arr) {
 
 		var i, copy;
 
 		if (Array.isArray(arr)) {
-			
+
 			copy = arr.slice(0);
-			
-			for( i = 0; i < copy.length; i++ ) {
-				
+
+			for (i = 0; i < copy.length; i++) {
+
 				copy[i] = this.Clone(copy[i]);
 			}
-			
+
 			return copy;
-			
-		} else if (typeof arr === 'object' ) {
-			
+
+		} else if (typeof arr === 'object') {
+
 			throw 'Cannot clone array containing an object!';
-			
+
 		} else {
-			
+
 			return arr;
 		}
 	}
-	
-	static MemCopy(dst, dstoffset, src,  srcoffset, count) {
-		
+
+	static MemCopy(dst, dstoffset, src, srcoffset, count) {
+
 		for (var i = 0; i < count; i++)
 			dst[dstoffset + i] = src[srcoffset + i];
 	}
-	
+
 	// Copy 2D[minx + x][miny + y]
 	static Copy2D(dst, src, minx, miny) {
-		
+
 		if (miny >= 0 & miny < src.length) {
-			
+
 			for (var y = 0; y < dst.length; y++) {
-				
+
 				this.MemCopy(dst[y], 0, src[miny + y], minx, dst[0].length);
 			}
 		}
@@ -64,182 +64,182 @@ class Matrix {
 
 	// Copy 2D[x][y] to 2D[minx + x][miny + y]
 	static Copy2DOffset(dst, src, minx, miny) {
-		
+
 		if (miny >= 0 & miny < dst.length & src.length > 0) {
-			
+
 			for (var y = 0; y < src.length; y++) {
-				
+
 				this.MemCopy(dst[miny + y], minx, src[y], 0, src[0].length);
 			}
 		}
 	}
-	
+
 	// transposition
 	static Transpose(src) {
-		
+
 		var srcy = src.length;
 		var srcx = src[0].length;
 		var dst, x, y;
 
 		if (srcy > 1 && srcx > 1) {
-		
+
 			dst = this.Create(srcx, srcy);
-			
+
 			for (y = 0; y < srcy; y++) {
 				for (x = 0; x < srcx; x++) {
-					
+
 					dst[x][y] = src[y][x];
 				}
 			}
-			
+
 			return dst;
-			
+
 		} else if (srcy > 1 && srcx == 1) {
-			
+
 			dst = this.Create(1, srcy);
-			
+
 			for (y = 0; y < srcy; y++) {
-				
+
 				dst[y] = src[y][0];
 			}
-			
+
 			return [dst];
-			
+
 		} else if (srcx > 1 && srcy == 1) {
-			
+
 			dst = this.Create(srcx, 1);
-			
+
 			for (x = 0; x < srcx; x++) {
-				
+
 				dst[x][0] = src[0][x];
 			}
-			
+
 			return dst;
 		}
 	}
-	
+
 	// 2D matrix multiplication - naive version
 	static Multiply(A, B) {
-		
+
 		var Ax = A[0].length, Ay = A.length;
 		var Bx = B[0].length, By = B.length;
-		
+
 		if (Ax == By) {
-			
+
 			var result = this.Create(Ay, Bx);
 
 			for (var y = 0; y < Ay; y++) {
 				for (var x = 0; x < Bx; x++) {
-					
+
 					result[y][x] = 0;
 
 					for (var k = 0; k < Ax; k++) {
-						
+
 						result[y][x] += A[y][k] * B[k][x];
 					}
 				}
 			}
-			
+
 			return result;
 		}
 	}
-	
+
 	// element by element multiplication
 	static Product(A, B) {
-		
+
 		var Ax = A[0].length, Ay = A.length;
 		var Bx = B[0].length, By = B.length;
-		
+
 		if (Ax == Bx && Ay == By) {
-			
+
 			var result = this.Create(Ay, Ax);
 
 			for (var y = 0; y < Ay; y++) {
 				for (var x = 0; x < Ax; x++) {
-					
+
 					result[y][x] = Ax > 1 ? A[y][x] * B[y][x] : [A[y][x] * B[y][x]];
 				}
 			}
-			
+
 			return result;
 		}
 	}
 
 	// element by element multiplication (vector)
 	static MultiplyVector(A, B) {
-		
+
 		var Ax = A.length;
 		var Bx = B.length;
-		
+
 		if (Ax == Bx) {
-			
+
 			var result = this.Create(Ax);
 
 			for (var x = 0; x < Ax; x++) {
-				
+
 				result[x] = A[x] * B[x];
 			}
-			
+
 			return result;
 		}
 	}
 
-	
+
 	// matrix * constant multiplication
 	static MultiplyConstant(A, constant = 1.0) {
-		
+
 		var Ax = A[0].length, Ay = A.length;
-		
+
 		var result = this.Create(Ay, Ax);
 
 		for (var y = 0; y < Ay; y++) {
 			for (var x = 0; x < Ax; x++) {
-				
+
 				result[y][x] = constant * A[y][x];
 			}
 		}
-			
+
 		return result;
 	}
-	
+
 	// matrix addition with scaling
 	static Add(A, B, Scale = 1.0) {
-		
+
 		var Ax = A[0].length, Ay = A.length;
 		var Bx = B[0].length, By = B.length;
-		
+
 		if (Ax == Bx && Ay == By) {
-			
+
 			var result = this.Create(Ay, Ax);
 
 			for (var y = 0; y < Ay; y++) {
 				for (var x = 0; x < Ax; x++) {
-					
+
 					result[y][x] = A[y][x] + Scale * B[y][x];
 				}
 			}
-			
+
 			return result;
 		}
 	}
-	
+
 	// matrix + constant addition
 	static AddConstant(A, constant = 0.0) {
-		
+
 		var Ax = A[0].length, Ay = A.length;
-		
+
 		var result = this.Create(Ay, Ax);
 
 		for (var y = 0; y < Ay; y++) {
 			for (var x = 0; x < Ax; x++) {
-				
+
 				result[y][x] = A[y][x] + constant;
 			}
 		}
-			
+
 		return result;
 	}
-	
+
 	// matrix summation
 	static Sum(A) {
 
@@ -249,145 +249,145 @@ class Matrix {
 
 		for (var y = 0; y < Ay; y++) {
 			for (var x = 0; x < Ax; x++) {
-				
+
 				sum += A[y][x];
 			}
 		}
 
 		return sum;
 	}
-	
+
 	// get sum of squares of each element
 	static SquareSum(A) {
-		
+
 		var Ax = A[0].length, Ay = A.length;
 
 		var sum = 0.0;
 
 		for (var y = 0; y < Ay; y++) {
 			for (var x = 0; x < Ax; x++) {
-				
+
 				sum += A[y][x] * A[y][x];
 			}
 		}
 
 		return sum;
 	}
-	
+
 	// mean of 2D array along a dimension
 	static Mean(src, dim) {
-		
+
 		var result, x, y, sum;
 
 		if (dim === 1) {
-			
+
 			result = this.Create(src[0].length);
-			
+
 			for (x = 0; x < src[0].length; x++) {
-				
+
 				sum = 0.0;
 
 				for (y = 0; y < src.length; y++) {
-					
+
 					sum += src[y][x];
 				}
 
 				result[x] = sum / src.length;
 			}
-			
+
 			return result;
-			
+
 		} else {
-			
+
 			result = this.Create(src.length);
 
 			for (y = 0; y < src.length; y++) {
-				
+
 				sum = 0.0;
 
 				for (x = 0; x < src[0].length; x++) {
-					
+
 					sum += src[y][x];
 				}
 
 				result[y] = sum / src[0].length;
 			}
-			
+
 			return result;
 		}
 	}
-	
+
 	// sigmoid function
 	static Sigmoid(x) {
-		
+
 		return 1.0 / (1.0 + Math.exp(-x));
 	}
-	
+
 	// get element per element difference between arrays
 	static Diff(A, B) {
-		
+
 		var Ax = A[0].length, Ay = A.length;
 		var Bx = B[0].length, By = B.length;
 
 		if (Ax == Bx && Ay == By) {
-			
+
 			var result = this.Create(Ay, Ax);
-			
+
 			for (var y = 0; y < Ay; y++) {
 				for (var x = 0; x < Ax; x++) {
-					
+
 					result[y][x] = A[y][x] - B[y][x];
 				}
 			}
-			
+
 			return result;
 		}
 	}
-	
+
 	// apply sigmoid function to matrix
 	static Sigm(A) {
-		
+
 		var Ax = A[0].length, Ay = A.length;
-		
+
 		var result = this.Create(Ay, Ax);
 
 		for (var y = 0; y < Ay; y++) {
 			for (var x = 0; x < Ax; x++) {
-				
+
 				result[y][x] = this.Sigmoid(A[y][x]);
 			}
 		}
-			
+
 		return result;
 	}
-	
+
 	// apply delta sigmoid function to matrix
 	static DSigm(A) {
-		
+
 		var Ax = A[0].length, Ay = A.length;
-		
+
 		var result = this.Create(Ay, Ax);
 
 		for (var y = 0; y < Ay; y++) {
 			for (var x = 0; x < Ax; x++) {
-				
+
 				var sigmoid = this.Sigmoid(A[y][x]);
-				
+
 				result[y][x] = sigmoid * (1.0 - sigmoid);
 			}
 		}
-			
+
 		return result;
 	}
-	
+
 	// combine two arrays column-wise
 	static CBind(A, B) {
-		
+
 		var Ax = A[0].length, Ay = A.length;
 		var Bx = B[0].length, By = B.length;
-		
+
 		if (Ay == By) {
-			
+
 			var resultx = Ax + Bx;
 			var resulty = Ay;
 
@@ -395,133 +395,133 @@ class Matrix {
 
 			this.Copy2DOffset(result, A, 0, 0);
 			this.Copy2DOffset(result, B, Ax, 0);
-		
+
 			return result;
 		}
 	}
-	
+
 	// flip 3D matrix along a dimension
 	static Flip(src, FlipDim) {
 
 		var srcz = src.length;
 		var srcy = src[0].length;
 		var srcx = src[0][0].length;
-		
+
 		var result = this.Create(srcz, srcy, srcx);
 
 		for (var z = 0; z < srcz; z++) {
 			for (var y = 0; y < srcy; y++) {
 				for (var x = 0; x < srcx; x++) {
-					
+
 					switch (FlipDim) {
-						
+
 						case 0:
-						
+
 							result[z][y][x] = src[z][y][srcx - x - 1];
-							
+
 							break;
-							
+
 						case 1:
-						
+
 							result[z][y][x] = src[z][srcy - y - 1][x];
-							
+
 							break;
-							
+
 						case 2:
-						
+
 							result[z][y][x] = src[srcz - z - 1][y][x];
-							
+
 							break;
-							
+
 						default:
-						
+
 							result[z][y][x] = src[z][y][srcx - x - 1];
-							
+
 							break;
 					}
 				}
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	// flip 2D matrix along a dimension
 	static Flip2D(src, FlipDim) {
 
 		var srcy = src.length;
 		var srcx = src[0].length;
-		
+
 		var result = this.Create(srcy, srcx);
 
 		for (var y = 0; y < srcy; y++) {
 			for (var x = 0; x < srcx; x++) {
-				
+
 				switch (FlipDim) {
-					
+
 					case 0:
-					
+
 						result[y][x] = src[y][srcx - x - 1];
-						
+
 						break;
-						
+
 					case 1:
-					
+
 						result[y][x] = src[srcy - y - 1][x];
-						
+
 						break;
-						
+
 					default:
-					
+
 						result[y][x] = src[y][srcx - x - 1];
-						
+
 						break;
 				}
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	// flip 3D matrix in all dimensions
 	static FlipAll(src) {
-		
+
 		var srcz = src.length;
 		var srcy = src[0].length;
 		var srcx = src[0][0].length;
-		
+
 		var result = this.Create(srcz, srcy, srcx);
 		var tmp = this.Clone(src);
 
 		for (var FlipDim = 0; FlipDim < 3; FlipDim++) {
-			
+
 			result = this.Flip(tmp, FlipDim);
-			
+
 			tmp = this.Clone(result);
 		}
-		
+
 		return result;
 	}
-	
+
 	// rotate a 2D matrix
 	static Rotate180(src) {
-		
+
 		var result = this.Create(src.length, src[0].length);
 		var tmp = this.Clone(src);
 
 		for (var FlipDim = 0; FlipDim < 2; FlipDim++) {
-			
+
 			result = this.Flip2D(tmp, FlipDim);
-			
+
 			tmp = this.Clone(result);
 		}
 
 		return result;
 	}
-	
+
 	// expand a matrix A[x][y] by [ex][ey]
 	static Expand(A, expandx, expandy) {
-		
+
 		var outputx = A[0].length * expandx;
 		var outputy = A.length * expandy;
 
@@ -531,30 +531,30 @@ class Matrix {
 			for (var x = 0; x < A[0].length; x++) {
 				for (var SZy = 0; SZy < expandy; SZy++) {
 					for (var SZx = 0; SZx < expandx; SZx++) {
-						
+
 						output[y * expandy + SZy][x * expandx + SZx] = A[y][x];
 					}
 				}
 			}
 		}
-		
+
 		return output;
 	}
-	
+
 	// Transforms x into a column vector
 	static Vector(A) {
-		
+
 		var temp = this.Transpose(A);
 
 		var result = this.Create(A.length * A[0].length);
-		
+
 		var i = 0;
 
 		for (var y = 0; y < temp.length; y++) {
 			for (var x = 0; x < temp[0].length; x++) {
-				
+
 				result[i] = temp[y][x];
-				
+
 				i++;
 			}
 		}
@@ -568,7 +568,7 @@ class Matrix {
 
 		for (var y = 0; y < x.length; y++) {
 
-			result[y][0] = x[y]; 
+			result[y][0] = x[y];
 		}
 
 		return result;
@@ -576,50 +576,50 @@ class Matrix {
 
 	// get sum of elements per row
 	static RowSums(A) {
-		
+
 		var result = this.Create(A.length, 1);
 
 		for (var i = 0; i < A.length; i++) {
-			
+
 			result[i][0] = 0.0;
 
 			for (var j = 0; j < A[0].length; j++) {
-				
+
 				result[i][0] += A[i][j];
 			}
 		}
 
 		return result;
 	}
-	
+
 	// get sum of elements per column
 	static ColSums(A) {
-		
+
 		var result = this.Create(1, A[0].length);
 
 		for (var j = 0; j < A[0].length; j++) {
-			
+
 			result[0][j] = 0.0;
 
 			for (var i = 0; i < A.length; i++) {
-				
+
 				result[0][j] += A[i][j];
 			}
 		}
 
 		return result;
 	}
-	
+
 	// create a 2D diagonal/identity matrix of size [dim][dim]
 	static Diag(dim) {
-		
+
 		if (dim > 0) {
-			
+
 			var result = this.Create(dim, dim);
 
 			for (var y = 0; y < dim; y++) {
 				for (var x = 0; x < dim; x++) {
-					
+
 					result[y][x] = (x == y) ? 1 : 0;
 				}
 			}
@@ -627,24 +627,24 @@ class Matrix {
 			return result;
 		}
 	}
-	
+
 	// compute the square root of each element in the 2D array
 	static Sqrt(A) {
-		
+
 		var Ax = A[0].length, Ay = A.length;
 
 		var result = this.Create(Ay, Ax);
 
 		for (var y = 0; y < Ay; y++) {
 			for (var x = 0; x < Ax; x++) {
-				
+
 				result[y][x] = Math.sqrt(A[y][x]);
 			}
 		}
-			
-		return result;	
+
+		return result;
 	}
-	
+
 	static Pow(A, power) {
 
 		var Ax = A[0].length, Ay = A.length;
@@ -653,140 +653,139 @@ class Matrix {
 
 		for (var y = 0; y < Ay; y++) {
 			for (var x = 0; x < Ax; x++) {
-				
+
 				result[y][x] = Math.pow(A[y][x], power);
 			}
 		}
-			
+
 		return result;
 	}
 
 	static Powers(A, powers) {
-		
+
 		var px = powers[0].length, py = powers.length;
 
 		var result = this.Create(py, px);
 
 		for (var y = 0; y < py; y++) {
 			for (var x = 0; x < px; x++) {
-				
+
 				result[y][x] = Math.pow(A, powers[y][x]);
 			}
 		}
 
 		return result;
 	}
-	
+
 	static SetVector(A, value = 0.0) {
-		
+
 		for (var x = 0; x < A.length; x++) {
-			
+
 			A[x] = value;
 		}
 	}
 
 	static Set(A, value = 0.0) {
-		
+
 		var Ax = A[0].length, Ay = A.length;
 
 		for (var y = 0; y < Ay; y++) {
 			for (var x = 0; x < Ax; x++) {
-				
+
 				A[y][x] = value;
 			}
 		}
 	}
-	
+
 	static Normalize(A) {
-			
+
 		var Ax = A[0].length, Ay = A.length;
-		
+
 		var result = this.Create(Ay, Ax);
 		var maxvals = this.Create(Ax);
 		var minvals = this.Create(Ax);
-		
+
 		var x, y;
 
 		for (x = 0; x < Ax; x++) {
-		
+
 			maxvals[x] = Number.MIN_VALUE;
 			minvals[x] = Number.MAX_VALUE;
 		}
-		
+
 		for (y = 0; y < Ay; y++) {
 			for (x = 0; x < Ax; x++) {
-				
+
 				maxvals[x] = Math.max(A[y][x], maxvals[x]);
 				minvals[x] = Math.min(A[y][x], minvals[x]);
 			}
 		}
-		
+
 		for (y = 0; y < Ay; y++) {
 			for (x = 0; x < Ax; x++) {
-				
+
 				var denum = maxvals[x] - minvals[x];
-				
-				result[y][x] = (A[y][x] - minvals[x])/denum;
+
+				result[y][x] = (A[y][x] - minvals[x]) / denum;
 			}
 		}
-		
+
 		return { result: result, min: minvals, max: maxvals };
 	}
-	
+
 	static ApplyNormalization(A, maxvals, minvals) {
-		
+
 		var Ax = A[0].length, Ay = A.length;
-		
+
 		var result = this.Create(Ay, Ax);
-		
+
 		for (var y = 0; y < Ay; y++) {
 			for (var x = 0; x < Ax; x++) {
-				
+
 				var denum = maxvals[x] - minvals[x];
-				
-				result[y][x] = (A[y][x] - minvals[x])/denum;
+
+				result[y][x] = (A[y][x] - minvals[x]) / denum;
 			}
 		}
-		
+
 		return result;
 	}
 }
 
 // see: https://stackoverflow.com/questions/28445693/how-do-i-make-a-public-static-field-in-an-es6-class
-class KernelType
-{
-	static get POLYNOMIAL() { 
-		
-		return 0; 
+class KernelType {
+	static get POLYNOMIAL() {
+
+		return 0;
 	}
-	
+
 	static get GAUSSIAN() {
-		
+
 		return 1;
 	}
-	
+
 	static get RADIAL() {
-	
+
 		return 2;
 	}
-	
+
 	static get SIGMOID() {
-		
+
 		return 3;
 	}
-	
+
 	static get LINEAR() {
-		
+
 		return 4;
 	}
-	
+
 	static get FOURIER() {
-		
+
 		return 5;
 	}
-	
+
 	static get UNKNOWN() {
-		
+
 		return -1;
 	}
 }
@@ -794,7 +793,7 @@ class KernelType
 class KernelFunction {
 
 	static Rows(x) {
-		
+
 		return x.length;
 	}
 
@@ -804,14 +803,14 @@ class KernelFunction {
 	}
 
 	static Multiply(x1, x2) {
-		
+
 		var v1 = Matrix.Vector(x1);
 		var v2 = Matrix.Vector(x2);
 
 		var x = 0.0;
 
 		if (v1.length == v2.length) {
-			
+
 			for (var i = 0; i < v1.length; i++)
 				x += v1[i] * v2[i];
 		}
@@ -823,15 +822,15 @@ class KernelFunction {
 
 		var v1 = Matrix.Vector(x1);
 		var v2 = Matrix.Vector(x2);
-		
+
 		var x = 0.0;
 
 		if (v1.length == v2.length) {
-			
+
 			for (var i = 0; i < v1.length; i++) {
 
 				var d = v1[i] - v2[i];
-	
+
 				x += d * d;
 			}
 		}
@@ -915,19 +914,19 @@ class KernelFunction {
 		} else if (type == KernelType.GAUSSIAN) {
 
 			result = this.Gaussian(x1, x2, k);
-		
-		} else  if (type == KernelType.FOURIER) {
+
+		} else if (type == KernelType.FOURIER) {
 
 			result = this.Fourier(x1, x2, k);
-		
+
 		} else if (type == KernelType.SIGMOID) {
 
 			result = this.Sigmoid(x1, x2, k);
-		
+
 		} else if (type == KernelType.RADIAL) {
 
 			result = this.Radial(x1, x2, k);
-		
+
 		} else if (type == KernelType.POLYNOMIAL) {
 
 			result = this.Polynomial(x1, x2, k);
@@ -940,35 +939,34 @@ class KernelFunction {
 class SupportVectorMachine {
 
 	constructor() {
-		
-		this.ModelX = undefined;
-        this.ModelY = [];
-        this.Type = KernelType.UNKNOWN;
-        this.KernelParam = undefined;
-        this.Alpha = undefined;
-        this.W = undefined;
-        this.B = 0.0;
-        this.C = 0.0;
-        this.Tolerance = 0.0;
-        this.Category = 0;
-        this.Iterations = 0;
-        this.MaxIterations = 0;
-        this.Trained = false;
 
-        // Internal variables
-        this.K = [];
-        this.E = [];
-        this.alpha = [];
-        this.dx = [];
-        this.dy = [];
-        this.b = 0.0;
-        this.eta = 0.0;
-        this.H = 0.0;
+		this.ModelX = undefined;
+		this.ModelY = [];
+		this.Type = KernelType.UNKNOWN;
+		this.KernelParam = undefined;
+		this.Alpha = undefined;
+		this.W = undefined;
+		this.B = 0.0;
+		this.C = 0.0;
+		this.Tolerance = 0.0;
+		this.Category = 0;
+		this.Iterations = 0;
+		this.MaxIterations = 0;
+		this.Trained = false;
+
+		// Internal variables
+		this.K = [];
+		this.E = [];
+		this.alpha = [];
+		this.dx = [];
+		this.dy = [];
+		this.b = 0.0;
+		this.eta = 0.0;
+		this.H = 0.0;
 		this.L = 0.0;
 	}
 
-	Initialize(x, y, type, parameters, alpha, b, w, passes, c, category) 
-	{
+	Initialize(x, y, type, parameters, alpha, b, w, passes, c, category) {
 		this.ModelX = x;
 		this.ModelY = y;
 		this.Type = type;
@@ -993,12 +991,12 @@ class SupportVectorMachine {
 	}
 
 	Setup(x, y, c, kernel, param, tolerance = 0.001, maxpasses = 5, category = 1) {
-		
+
 		this.dx = Matrix.Clone(x);
 		this.dy = Matrix.Clone(y);
-		
+
 		this.Type = kernel;
-	
+
 		// Data parameters
 		var m = this.Rows(this.dx);
 
@@ -1036,9 +1034,9 @@ class SupportVectorMachine {
 
 			this.K = Matrix.MultiplyConstant(this.K, slope);
 			this.K = Matrix.AddConstant(this.K, inter);
-				
+
 		} else if (kernel == KernelType.GAUSSIAN || kernel == KernelType.RADIAL) {
-			
+
 			// RBF Kernel
 			// This is equivalent to computing the kernel on every pair of examples
 
@@ -1065,13 +1063,13 @@ class SupportVectorMachine {
 			}
 
 			this.K = Matrix.Powers(g, tempK);
-				
+
 		} else {
 
 			this.K = Matrix.Create(m, m);
 			var Xi = Matrix.Create(1, this.Cols(this.dx));
 			var Xj = Matrix.Create(1, this.Cols(this.dx));
-			
+
 			for (i = 0; i < m; i++) {
 
 				Matrix.Copy2D(Xi, this.dx, 0, i);
@@ -1100,7 +1098,7 @@ class SupportVectorMachine {
 	}
 
 	Step() {
-		
+
 		if (this.Iterations >= this.MaxIterations)
 			return true;
 
@@ -1154,7 +1152,7 @@ class SupportVectorMachine {
 
 					this.L = Math.max(0.0, this.alpha[j] + this.alpha[i] - this.C);
 					this.H = Math.min(this.C, this.alpha[j] + this.alpha[i]);
-				
+
 				} else {
 
 					this.L = Math.max(0.0, this.alpha[j] - this.alpha[i]);
@@ -1204,11 +1202,11 @@ class SupportVectorMachine {
 				if (0.0 < this.alpha[i] && this.alpha[i] < this.C) {
 
 					this.b = b1;
-				
+
 				} else if (0.0 < this.alpha[j] && this.alpha[j] < this.C) {
 
 					this.b = b2;
-				
+
 				} else {
 
 					this.b = (b1 + b2) / 2;
@@ -1223,7 +1221,7 @@ class SupportVectorMachine {
 			this.Iterations++;
 
 		} else {
-			
+
 			this.Iterations = 0;
 		}
 
@@ -1231,7 +1229,7 @@ class SupportVectorMachine {
 	}
 
 	Generate() {
-		
+
 		var m = this.Rows(this.dx);
 		var n = this.Cols(this.dx);
 
@@ -1325,7 +1323,7 @@ class SupportVectorMachine {
 	//
 	// Converted to JavaScript by: SD Separa (2019/05/16)
 	Predict(input) {
-		
+
 		var predictions = Matrix.Create(this.Rows(input), 1);
 
 		if (this.Trained) {
@@ -1352,7 +1350,7 @@ class SupportVectorMachine {
 				predictions = Matrix.AddConstant(predictions, this.B);
 
 			} else if (this.Type == KernelType.GAUSSIAN || this.Type == KernelType.RADIAL) {
-				
+
 				// RBF Kernel
 				// This is equivalent to computing the kernel on every pair of examples
 				var pX1 = Matrix.Pow(x, 2);
@@ -1380,7 +1378,7 @@ class SupportVectorMachine {
 				var sigma = this.KernelParam.length > 0 ? this.KernelParam[0] : 1.0;
 
 				if (this.Type == KernelType.RADIAL) {
-					
+
 					tempK = Matrix.Sqrt(tempK);
 				}
 
@@ -1401,7 +1399,7 @@ class SupportVectorMachine {
 				predictions = Matrix.AddConstant(predictions, this.B);
 
 			} else {
-				
+
 				var Xi = Matrix.Create(1, this.Cols(x));
 				var Xj = Matrix.Create(1, this.Cols(this.ModelX));
 
@@ -1427,9 +1425,9 @@ class SupportVectorMachine {
 	}
 
 	Classify(input, threshold = 0.0) {
-		
+
 		var classification = Matrix.Create(this.Rows(input), 1);
-		
+
 		var predictions = this.Predict(input);
 
 		for (var i = 0; i < predictions.length; i++) {
