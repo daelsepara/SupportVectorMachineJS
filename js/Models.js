@@ -1147,7 +1147,7 @@ class SupportVectorMachine {
 				var alpha_i_old = this.alpha[i];
 				var alpha_j_old = this.alpha[j];
 
-				// Compute L and H by (10) or (11). 
+				// Compute L and H by (10) or (11).
 				if (parseInt(this.dy[i]) == parseInt(this.dy[j])) {
 
 					this.L = Math.max(0.0, this.alpha[j] + this.alpha[i] - this.C);
@@ -1161,7 +1161,7 @@ class SupportVectorMachine {
 
 				if (Math.abs(this.L - this.H) <= Number.EPSILON) {
 
-					// continue to next i 
+					// continue to next i
 					continue;
 				}
 
@@ -1170,7 +1170,7 @@ class SupportVectorMachine {
 
 				if (this.eta >= 0.0) {
 
-					// continue to next i. 
+					// continue to next i.
 					continue;
 				}
 
@@ -1184,21 +1184,21 @@ class SupportVectorMachine {
 				// Check if change in alpha is significant
 				if (Math.abs(this.alpha[j] - alpha_j_old) < this.Tolerance) {
 
-					// continue to next i. 
+					// continue to next i.
 					// replace anyway
 					this.alpha[j] = alpha_j_old;
 
 					continue;
 				}
 
-				// Determine value for alpha i using (16). 
+				// Determine value for alpha i using (16).
 				this.alpha[i] = this.alpha[i] + this.dy[i] * this.dy[j] * (alpha_j_old - this.alpha[j]);
 
-				// Compute b1 and b2 using (17) and (18) respectively. 
+				// Compute b1 and b2 using (17) and (18) respectively.
 				var b1 = this.b - this.E[i] - this.dy[i] * (this.alpha[i] - alpha_i_old) * this.K[i][j] - this.dy[j] * (this.alpha[j] - alpha_j_old) * this.K[i][j];
 				var b2 = this.b - this.E[j] - this.dy[i] * (this.alpha[i] - alpha_i_old) * this.K[i][j] - this.dy[j] * (this.alpha[j] - alpha_j_old) * this.K[j][j];
 
-				// Compute b by (19). 
+				// Compute b by (19).
 				if (0.0 < this.alpha[i] && this.alpha[i] < this.C) {
 
 					this.b = b1;
@@ -1277,21 +1277,21 @@ class SupportVectorMachine {
 			this.Trained = true;
 	}
 
-	// SVMTRAIN Trains an SVM classifier using a simplified version of the SMO 
+	// SVMTRAIN Trains an SVM classifier using a simplified version of the SMO
 	// algorithm.
 	//
 	// [model] = svm_train(X, Y, C, kernelFunction, kernelParam, tol, max_passes) trains an
-	// SVM classifier and returns trained model. X is the matrix of training 
-	// examples.  Each row is a training example, and the jth column holds the 
-	// jth feature.  Y is a column matrix containing 1 for positive examples 
-	// and 0 for negative examples.  C is the standard SVM regularization 
-	// parameter.  tol is a tolerance value used for determining equality of 
+	// SVM classifier and returns trained model. X is the matrix of training
+	// examples.  Each row is a training example, and the jth column holds the
+	// jth feature.  Y is a column matrix containing 1 for positive examples
+	// and 0 for negative examples.  C is the standard SVM regularization
+	// parameter.  tol is a tolerance value used for determining equality of
 	// floating point numbers. max_passes controls the number of iterations
 	// over the dataset (without changes to alpha) before the algorithm quits.
 	//
 	// Note: This is a simplified version of the SMO algorithm for training
 	// SVMs. In practice, if you want to train an SVM classifier, we
-	// recommend using an optimized package such as:  
+	// recommend using an optimized package such as:
 	//
 	// LIBSVM   (http://www.csie.ntu.edu.tw/~cjlin/libsvm/)
 	// SVMLight (http://svmlight.joachims.org/)
@@ -1311,10 +1311,10 @@ class SupportVectorMachine {
 	}
 
 	// SVMPREDICT returns a vector of predictions using a trained SVM model
-	//(svm_train). 
+	//(svm_train).
 	//
-	// pred = SVMPREDICT(model, X) returns a vector of predictions using a 
-	// trained SVM model (svm_train). X is a mxn matrix where there each 
+	// pred = SVMPREDICT(model, X) returns a vector of predictions using a
+	// trained SVM model (svm_train). X is a mxn matrix where there each
 	// example is a row. model is a svm model returned from svm_train.
 	// predictions pred is a m x 1 column of predictions of {0, 1} values.
 	//
